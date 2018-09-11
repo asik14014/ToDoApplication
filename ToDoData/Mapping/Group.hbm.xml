@@ -1,0 +1,13 @@
+﻿<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2" assembly="TodoData" namespace="TodoData.Models.Group" >
+  <class name="Group" table="dbo.Groups" >
+    <id name="Id" column="bintId" type="Int64" generator="native" />
+    <property name="UserId" column="bintUserId" type="Int64" />
+    <property name="GroupType" column="intGroupType" type="Int32" />
+    <property name="Name" column="vchName" type="string"/>
+    <property name="Description" column="vchDescription" type="string"/>
+    <property name="Order" column="intOrder" type="Int32" />
+    <property name="CreationDate" column="dtCreation" type="DateTime" />
+    <property name="LastUpdate" column="dtLastUpdate" type="DateTime" />
+    <property name="IsActive" column="bitIsActive" type="Boolean" />
+  </class>
+</hibernate-mapping>

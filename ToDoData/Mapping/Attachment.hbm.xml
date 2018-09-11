@@ -1,0 +1,10 @@
+﻿<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2" assembly="TodoData" namespace ="TodoData.Models.Attachment" >
+  <class name="Attachment" table="dbo.Attachments" >
+    <id name="Id" column ="bintId" type="Int64" generator="native" />
+    <property name="FileType" column="intFileType" type="Int32" />
+    <property name="FileName" column="vchName" type="string"/>
+    <property name="FileUrl" column="vchUrl" type="string" />
+    <property name="TaskId" column="bintTaskId" type="Int64" />
+    <property name="LastUpdate" column="dtLastUpdate" type="DateTime" />
+  </class>
+</hibernate-mapping>
