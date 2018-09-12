@@ -3,7 +3,7 @@
     <id name="Id" column="bintId" type="Int64" generator="native" />
     <property name="Email" column="vchEmail" type="string"/>
     <property name="IsActive" column="bitIsActive" type="Boolean" />
-    <property name="Type" column="intUserType" type="Int32" />
+    <property name="UserType" column="intUserType" type="Int32" />
     <property name="UserInfoId" column="bintUserInfoId" type="Int64" />
     <property name="AccountPlanId" column="intAccountPlan" type="Int32" />
     <property name="Registration" column="dtRegistration" type="DateTime" />

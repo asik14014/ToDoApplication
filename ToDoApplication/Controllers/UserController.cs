@@ -7,6 +7,8 @@ using System.Web.Mvc;
 
 namespace ToDoApplication.Controllers
 {
+    [AllowAnonymous]
+    //[Authorize]
     public class UserController : Controller
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
@@ -16,7 +18,6 @@ namespace ToDoApplication.Controllers
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        [AllowAnonymous]
         [HttpPost]
         public object Registration(User user)
         {
@@ -51,14 +52,12 @@ namespace ToDoApplication.Controllers
         /// <param name="login"></param>
         /// <param name="password"></param>
         /// <returns></returns>'
-        [Authorize]
         [HttpGet]
         public object GetToken(string login, string password)
         {
             return "";
         }
 
-        [Authorize]
         [HttpGet]
         public object Find(string login)
         {
@@ -75,7 +74,6 @@ namespace ToDoApplication.Controllers
             }
         }
 
-        [Authorize]
         [HttpPut]
         public object Update(User user)
         {

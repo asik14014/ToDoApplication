@@ -8,6 +8,9 @@ using System.Web.Mvc;
 namespace ToDoApplication.Controllers
 {
     //[Route("api/[controller]")]
+    [RoutePrefix("api/Task")]
+    [AllowAnonymous]
+    //[Authorize]
     public class TaskController : Controller
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
@@ -17,7 +20,6 @@ namespace ToDoApplication.Controllers
         /// </summary>
         /// <returns></returns>
         //[Authorize]
-        [AllowAnonymous]
         public object Get(long id)
         {
             logger.Log(LogLevel.Debug, $"TaskController.Get({id})");
@@ -38,19 +40,18 @@ namespace ToDoApplication.Controllers
         /// Достать все задачи по пользователю
         /// </summary>
         /// <returns></returns>
-        [HttpGet]
-        [Authorize]
-        public object GetAll(long userId)
+        //[HttpGet]
+        public object GetAll(long id)
         {
-            logger.Log(LogLevel.Debug, $"TaskController.GetAll({userId})");
+            logger.Log(LogLevel.Debug, $"TaskController.GetAll({id})");
 
             try
             {
-                return TaskManager.GetAllTasksByUser(userId);
+                return TaskManager.GetAllTasksByUser(id);
             }
             catch (Exception ex)
             {
-                logger.Log(LogLevel.Error, $"TaskController.GetAll({userId}) - {ex}");
+                logger.Log(LogLevel.Error, $"TaskController.GetAll({id}) - {ex}");
                 //изменить http status code
                 return new Response(100, ex.Message);
             }
@@ -60,7 +61,6 @@ namespace ToDoApplication.Controllers
         /// Создать задачу
         /// </summary>
         [HttpPut]
-        [Authorize]
         public object Create(Task task)
         {
             logger.Log(LogLevel.Debug, $"TaskController.Create({task})"); //object to json
@@ -83,7 +83,6 @@ namespace ToDoApplication.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPut]
-        [Authorize]
         public object Update(Task task)
         {
             logger.Log(LogLevel.Debug, $"TaskController.Update({task})"); //object to json
@@ -106,7 +105,6 @@ namespace ToDoApplication.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpDelete]
-        [Authorize]
         public object Delete(Task task)
         {
             logger.Log(LogLevel.Debug, $"TaskController.Delete({task})"); //object to json

@@ -8,6 +8,8 @@ using System.Web.Mvc;
 
 namespace ToDoApplication.Controllers
 {
+    //[Authorize]
+    [AllowAnonymous]
     public class ShareController : Controller
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();

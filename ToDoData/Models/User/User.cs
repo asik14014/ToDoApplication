@@ -16,7 +16,7 @@ namespace TodoData.Models.User
 
         public virtual long UserInfoId { get; set; }
 
-        public virtual int AccountPlan { get; set; }
+        public virtual int AccountPlanId { get; set; }
 
         public virtual DateTime Registration { get; set; }
 

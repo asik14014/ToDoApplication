@@ -7,6 +7,9 @@ using System.Web.Mvc;
 
 namespace ToDoApplication.Controllers
 {
+    [RoutePrefix("api/Group")]
+    [AllowAnonymous]
+    //[Authorize]
     public class GroupController : Controller
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
@@ -16,7 +19,6 @@ namespace ToDoApplication.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Authorize]
         public object Get(long id)
         {
             logger.Log(LogLevel.Debug, $"GroupController.Get({id})");
@@ -37,7 +39,6 @@ namespace ToDoApplication.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Authorize]
         public object GetAll(long userId)
         {
             logger.Log(LogLevel.Debug, $"GroupController.GetAll({userId})");
@@ -58,7 +59,6 @@ namespace ToDoApplication.Controllers
         /// Создать группу
         /// </summary>
         [HttpPut]
-        [Authorize]
         public object Create(Group group)
         {
             logger.Log(LogLevel.Debug, $"GroupController.Create({group})"); //object to json
@@ -81,7 +81,6 @@ namespace ToDoApplication.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPut]
-        [Authorize]
         public object Update(Group group)
         {
             logger.Log(LogLevel.Debug, $"GroupController.Update({group})"); //object to json
@@ -104,7 +103,6 @@ namespace ToDoApplication.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpDelete]
-        [Authorize]
         public object Delete(Group group)
         {
             logger.Log(LogLevel.Debug, $"GroupController.Delete({group})"); //object to json
