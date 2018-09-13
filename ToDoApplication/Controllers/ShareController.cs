@@ -19,13 +19,13 @@ namespace ToDoApplication.Controllers
             logger.Log(LogLevel.Debug, $"ShareController.Task({Json(task)}, {userId})");
             try
             {
-                return ShareManager.ShareTask(task, userId, type);
+                return Json(ShareManager.ShareTask(task, userId, type), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
                 logger.Log(LogLevel.Error, $"ShareController.Task({Json(task)}, {userId}) - {ex}");
                 //изменить http status code
-                return new Response(100, ex.Message);
+                return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -34,13 +34,13 @@ namespace ToDoApplication.Controllers
             logger.Log(LogLevel.Debug, $"ShareController.Group({Json(group)}, {userId})");
             try
             {
-                return ShareManager.ShareGroup(group, userId, type);
+                return Json(ShareManager.ShareGroup(group, userId, type), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
                 logger.Log(LogLevel.Error, $"ShareController.Group({Json(group)}, {userId}) - {ex}");
                 //изменить http status code
-                return new Response(100, ex.Message);
+                return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -58,7 +58,7 @@ namespace ToDoApplication.Controllers
             {
                 logger.Log(LogLevel.Error, $"ShareController.DeleteTask({Json(task)}, {userId}) - {ex}");
                 //изменить http status code
-                return new Response(100, ex.Message);
+                return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -76,7 +76,7 @@ namespace ToDoApplication.Controllers
             {
                 logger.Log(LogLevel.Error, $"ShareController.DeleteGroup({Json(group)}, {userId}) - {ex}");
                 //изменить http status code
-                return new Response(100, ex.Message);
+                return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
             }
         }
     }

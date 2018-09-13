@@ -24,13 +24,13 @@ namespace ToDoApplication.Controllers
             logger.Log(LogLevel.Debug, $"GroupController.Get({id})");
             try
             {
-                return GroupManager.GetGroup(id);
+                return Json(GroupManager.GetGroup(id), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
                 logger.Log(LogLevel.Error, $"GroupController.Get({id}) - {ex}");
                 //изменить http status code
-                return new Response(100, ex.Message);
+                return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -39,19 +39,19 @@ namespace ToDoApplication.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public object GetAll(long userId)
+        public object GetAll(long id)
         {
-            logger.Log(LogLevel.Debug, $"GroupController.GetAll({userId})");
+            logger.Log(LogLevel.Debug, $"GroupController.GetAll({id})");
 
             try
             {
-                return GroupManager.GetAllGroupsByUser(userId);
+                return Json(GroupManager.GetAllGroupsByUser(id), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
-                logger.Log(LogLevel.Error, $"GroupController.GetAll({userId}) - {ex}");
+                logger.Log(LogLevel.Error, $"GroupController.GetAll({id}) - {ex}");
                 //изменить http status code
-                return new Response(100, ex.Message);
+                return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -66,13 +66,13 @@ namespace ToDoApplication.Controllers
             try
             {
                 var newGroup = GroupManager.SaveOrUpdate(group);
-                return new Response(0, "Success"); //добавить объект в response
+                return Json(new Response(0, "Success"), JsonRequestBehavior.AllowGet); //добавить объект в response
             }
             catch (Exception ex)
             {
                 logger.Log(LogLevel.Error, $"GroupController.Create({group}) - {ex}"); //object to json
                 //изменить http status code
-                return new Response(100, ex.Message);
+                return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -88,13 +88,13 @@ namespace ToDoApplication.Controllers
             try
             {
                 var newGroup = GroupManager.SaveOrUpdate(group);
-                return new Response(0, "Success"); //добавить объект в response
+                return Json(new Response(0, "Success"), JsonRequestBehavior.AllowGet); //добавить объект в response
             }
             catch (Exception ex)
             {
                 logger.Log(LogLevel.Error, $"GroupController.Update({group}) - {ex}"); //object to json
                 //изменить http status code
-                return new Response(100, ex.Message);
+                return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -110,13 +110,13 @@ namespace ToDoApplication.Controllers
             try
             {
                 GroupManager.Delete(group);
-                return new Response(0, "Success");
+                return Json(new Response(0, "Success"), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
                 logger.Log(LogLevel.Error, $"GroupController.Delete({group}) - {ex}"); //object to json
                 //изменить http status code
-                return new Response(100, ex.Message);
+                return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
             }
         }
     }

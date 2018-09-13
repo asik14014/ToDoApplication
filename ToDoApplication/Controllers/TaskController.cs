@@ -25,14 +25,13 @@ namespace ToDoApplication.Controllers
             logger.Log(LogLevel.Debug, $"TaskController.Get({id})");
             try
             {
-                return $"Works! {id}";
-                //return TaskManager.GetTask(id);
+                return Json(TaskManager.GetTask(id), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
                 logger.Log(LogLevel.Error, $"TaskController.Get({id}) - {ex}");
                 //изменить http status code
-                return new Response(100, ex.Message);
+                return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -47,13 +46,13 @@ namespace ToDoApplication.Controllers
 
             try
             {
-                return TaskManager.GetAllTasksByUser(id);
+                return Json(TaskManager.GetAllTasksByUser(id), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
                 logger.Log(LogLevel.Error, $"TaskController.GetAll({id}) - {ex}");
                 //изменить http status code
-                return new Response(100, ex.Message);
+                return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -68,13 +67,13 @@ namespace ToDoApplication.Controllers
             try
             {
                 var newTask = TaskManager.SaveOrUpdate(task);
-                return new Response(0, "Success"); //добавить объект в response
+                return Json(new Response(0, "Success"), JsonRequestBehavior.AllowGet); //добавить объект в response
             }
             catch (Exception ex)
             {
                 logger.Log(LogLevel.Error, $"TaskController.Create({task}) - {ex}"); //object to json
                 //изменить http status code
-                return new Response(100, ex.Message);
+                return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -90,13 +89,13 @@ namespace ToDoApplication.Controllers
             try
             {
                 var newGroup = TaskManager.SaveOrUpdate(task);
-                return new Response(0, "Success"); //добавить объект в response
+                return Json(new Response(0, "Success"), JsonRequestBehavior.AllowGet); //добавить объект в response
             }
             catch (Exception ex)
             {
                 logger.Log(LogLevel.Error, $"TaskController.Update({task}) - {ex}"); //object to json
                 //изменить http status code
-                return new Response(100, ex.Message);
+                return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -112,13 +111,13 @@ namespace ToDoApplication.Controllers
             try
             {
                 TaskManager.Delete(task);
-                return new Response(0, "Success");
+                return Json(new Response(0, "Success"), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
                 logger.Log(LogLevel.Error, $"TaskController.Delete({task}) - {ex}"); //object to json
                 //изменить http status code
-                return new Response(100, ex.Message);
+                return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
             }
         }
     }
