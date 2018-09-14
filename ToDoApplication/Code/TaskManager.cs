@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using ToDoApplication.Models.Request;
 using TodoData.Dao;
 using TodoData.Models.Shared;
 using TodoData.Models.Task;
@@ -35,9 +37,10 @@ namespace ToDoApplication.Code
             return taskDaoManager.Save(task);
         }
 
-        public static void Delete(Task task)
+        public static void Delete(long taskId)
         {
-            taskDaoManager.Delete(task);
+            var entity = taskDaoManager.GetById(taskId);
+            taskDaoManager.Delete(entity);
         }
 
         public static Task GetTask(long id)
@@ -45,9 +48,44 @@ namespace ToDoApplication.Code
             return taskDaoManager.GetById(id);
         }
 
-        public static Task SaveOrUpdate(Task task)
+        public static Task SaveOrUpdate(TaskRequest task)
         {
-            return taskDaoManager.SaveOrUpdate(task);
+            var entity = new Task()
+            {
+                GroupId = task.GroupId,
+                UserId = task.UserId,
+                Status = task.Status,
+                CreationDate = DateTime.Now,
+                LastUpdate = DateTime.Now
+            };
+            return taskDaoManager.SaveOrUpdate(entity);
+        }
+
+        public static Task Save(TaskRequest task)
+        {
+            var entity = new Task()
+            {
+                GroupId = task.GroupId,
+                UserId = task.UserId,
+                Status = task.Status,
+                CreationDate = DateTime.Now,
+                LastUpdate = DateTime.Now
+            };
+            return taskDaoManager.Save(entity);
+        }
+
+        public static Task Update(TaskRequest task)
+        {
+            var entity = new Task()
+            {
+                Id = task.Id,
+                GroupId = task.GroupId,
+                UserId = task.UserId,
+                Status = task.Status,
+                CreationDate = DateTime.Now,
+                LastUpdate = DateTime.Now
+            };
+            return taskDaoManager.Update(entity);
         }
     }
 }

@@ -4,6 +4,7 @@ using ToDoApplication.Code;
 using ToDoApplication.Models;
 using TodoData.Models.Task;
 using System.Web.Mvc;
+using ToDoApplication.Models.Request;
 
 namespace ToDoApplication.Controllers
 {
@@ -81,13 +82,13 @@ namespace ToDoApplication.Controllers
         /// Создать задачу
         /// </summary>
         [HttpPut]
-        public object Create(Task task)
+        public object Create(TaskRequest task)
         {
             logger.Log(LogLevel.Debug, $"TaskController.Create({task})"); //object to json
 
             try
             {
-                var newTask = TaskManager.SaveOrUpdate(task);
+                var newTask = TaskManager.Save(task);
                 return Json(new Response(0, "Success"), JsonRequestBehavior.AllowGet); //добавить объект в response
             }
             catch (Exception ex)
@@ -103,13 +104,13 @@ namespace ToDoApplication.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPut]
-        public object Update(Task task)
+        public object Update(TaskRequest task)
         {
             logger.Log(LogLevel.Debug, $"TaskController.Update({task})"); //object to json
 
             try
             {
-                var newGroup = TaskManager.SaveOrUpdate(task);
+                var newGroup = TaskManager.Update(task);
                 return Json(new Response(0, "Success"), JsonRequestBehavior.AllowGet); //добавить объект в response
             }
             catch (Exception ex)
@@ -125,18 +126,18 @@ namespace ToDoApplication.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpDelete]
-        public object Delete(Task task)
+        public object Delete(long taskId)
         {
-            logger.Log(LogLevel.Debug, $"TaskController.Delete({task})"); //object to json
+            logger.Log(LogLevel.Debug, $"TaskController.Delete({taskId})"); //object to json
 
             try
             {
-                TaskManager.Delete(task);
+                TaskManager.Delete(taskId);
                 return Json(new Response(0, "Success"), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
-                logger.Log(LogLevel.Error, $"TaskController.Delete({task}) - {ex}"); //object to json
+                logger.Log(LogLevel.Error, $"TaskController.Delete({taskId}) - {ex}"); //object to json
                 //изменить http status code
                 return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
             }

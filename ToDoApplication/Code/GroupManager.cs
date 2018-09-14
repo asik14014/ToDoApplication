@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ToDoApplication.Models.Request;
 using TodoData.Dao;
 using TodoData.Enum;
 using TodoData.Models.Group;
@@ -32,8 +33,9 @@ namespace ToDoApplication.Code
             return groupDaoManager.Save(group);
         }
 
-        public static void Delete(Group group)
+        public static void Delete(long groupId)
         {
+            var group = groupDaoManager.GetById(groupId);
             groupDaoManager.Delete(group);
         }
 
@@ -45,6 +47,39 @@ namespace ToDoApplication.Code
         public static Group SaveOrUpdate(Group group)
         {
             return groupDaoManager.SaveOrUpdate(group);
+        }
+
+        public static Group Save(GroupRequest group)
+        {
+            var entity = new Group()
+            {
+                UserId = group.UserId,
+                GroupType = group.GroupType,
+                Name = group.Name,
+                Description = group.Description,
+                Order = group.Order,
+                CreationDate = DateTime.Now,
+                LastUpdate = DateTime.Now,
+                IsActive = true
+            };
+            return groupDaoManager.Save(entity);
+        }
+
+        public static Group Update(GroupRequest group)
+        {
+            var entity = new Group()
+            {
+                Id = group.Id,
+                UserId = group.UserId,
+                GroupType = group.GroupType,
+                Name = group.Name,
+                Description = group.Description,
+                Order = group.Order,
+                CreationDate = DateTime.Now,
+                LastUpdate = DateTime.Now,
+                IsActive = true
+            };
+            return groupDaoManager.Update(entity);
         }
 
         public static Group CreateFavorites(long userId)

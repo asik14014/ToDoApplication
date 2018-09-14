@@ -139,5 +139,34 @@ namespace TodoData.Dao
                 throw ex;
             }
         }
+
+        public T Update(T entity)
+        {
+            try
+            {
+                using (var session = NHibertnateSession.OpenSession())
+                {
+                    using (ITransaction transaction = session.BeginTransaction())
+                    {
+                        try
+                        {
+                            session.Update(entity);
+                            transaction.Commit();
+                        }
+                        catch (Exception)
+                        {
+                            if (!transaction.WasCommitted) transaction.Rollback();
+                            throw;
+                        }
+                    }
+                }
+
+                return entity;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

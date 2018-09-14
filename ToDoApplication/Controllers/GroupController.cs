@@ -4,6 +4,7 @@ using ToDoApplication.Code;
 using ToDoApplication.Models;
 using TodoData.Models.Group;
 using System.Web.Mvc;
+using ToDoApplication.Models.Request;
 
 namespace ToDoApplication.Controllers
 {
@@ -80,13 +81,13 @@ namespace ToDoApplication.Controllers
         /// Создать группу
         /// </summary>
         [HttpPut]
-        public object Create(Group group)
+        public object Create(GroupRequest group)
         {
             logger.Log(LogLevel.Debug, $"GroupController.Create({group})"); //object to json
 
             try
             {
-                var newGroup = GroupManager.SaveOrUpdate(group);
+                var newGroup = GroupManager.Save(group);
                 return Json(new Response(0, "Success"), JsonRequestBehavior.AllowGet); //добавить объект в response
             }
             catch (Exception ex)
@@ -102,13 +103,13 @@ namespace ToDoApplication.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPut]
-        public object Update(Group group)
+        public object Update(GroupRequest group)
         {
             logger.Log(LogLevel.Debug, $"GroupController.Update({group})"); //object to json
 
             try
             {
-                var newGroup = GroupManager.SaveOrUpdate(group);
+                var newGroup = GroupManager.Update(group);
                 return Json(new Response(0, "Success"), JsonRequestBehavior.AllowGet); //добавить объект в response
             }
             catch (Exception ex)
@@ -124,18 +125,18 @@ namespace ToDoApplication.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpDelete]
-        public object Delete(Group group)
+        public object Delete(long groupId)
         {
-            logger.Log(LogLevel.Debug, $"GroupController.Delete({group})"); //object to json
+            logger.Log(LogLevel.Debug, $"GroupController.Delete({groupId})"); //object to json
 
             try
             {
-                GroupManager.Delete(group);
+                GroupManager.Delete(groupId);
                 return Json(new Response(0, "Success"), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
-                logger.Log(LogLevel.Error, $"GroupController.Delete({group}) - {ex}"); //object to json
+                logger.Log(LogLevel.Error, $"GroupController.Delete({groupId}) - {ex}"); //object to json
                 //изменить http status code
                 return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
             }
