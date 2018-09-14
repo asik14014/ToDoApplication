@@ -1,8 +1,6 @@
 ﻿using System;
 using TodoData.Dao;
-using TodoData.Models.Group;
 using TodoData.Models.Shared;
-using TodoData.Models.Task;
 
 namespace ToDoApplication.Code
 {
@@ -14,16 +12,17 @@ namespace ToDoApplication.Code
         private static SharedTaskDaoManager sharedTaskDaoManager = new SharedTaskDaoManager();
         private static ShareTypeDaoManager shareTypeDaoManager = new ShareTypeDaoManager();
 
-        public static SharedTasks ShareTask(Task task, long userId, int type)
+        
+        public static SharedTasks ShareTask(long taskId, long userId, int type)
         {
-            var sharedTask = sharedTaskDaoManager.Find(userId, task.Id);
+            var sharedTask = sharedTaskDaoManager.Find(userId, taskId);
 
             if (sharedTask == null)
             {
                 var entity = new SharedTasks()
                 {
                     Id = 0,
-                    TaskId = task.Id,
+                    TaskId = taskId,
                     UserId = userId,
                     ShareType = type,
                     IsActive = true,
@@ -42,16 +41,16 @@ namespace ToDoApplication.Code
             return sharedTask;
         }
 
-        public static SharedGroups ShareGroup(Group group, long userId, int type)
+        public static SharedGroups ShareGroup(long groupId, long userId, int type)
         {
-            var sharedGroup = sharedGroupDaoManager.Find(userId, group.Id);
+            var sharedGroup = sharedGroupDaoManager.Find(userId, groupId);
 
             if (sharedGroup == null)
             {
                 var entity = new SharedGroups()
                 {
                     Id = 0,
-                    GroupId = group.Id,
+                    GroupId = groupId,
                     UserId = userId,
                     ShareType = type,
                     IsActive = true,
@@ -70,9 +69,9 @@ namespace ToDoApplication.Code
             return sharedGroup;
         }
 
-        public static bool UnshareTask(Task task, long userId)
+        public static bool UnshareTask(long taskId, long userId)
         {
-            var sharedTask = sharedTaskDaoManager.Find(userId, task.Id);
+            var sharedTask = sharedTaskDaoManager.Find(userId, taskId);
 
             if (sharedTask == null)
             {
@@ -86,9 +85,9 @@ namespace ToDoApplication.Code
             return true;
         }
 
-        public static bool UnshareGroup(Group group, long userId)
+        public static bool UnshareGroup(long groupId, long userId)
         {
-            var sharedGroup = sharedGroupDaoManager.Find(userId, group.Id);
+            var sharedGroup = sharedGroupDaoManager.Find(userId, groupId);
 
             if (sharedGroup == null)
             {

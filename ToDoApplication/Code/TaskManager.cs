@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using TodoData.Dao;
+using TodoData.Models.Shared;
 using TodoData.Models.Task;
 
 namespace ToDoApplication.Code
@@ -7,6 +8,7 @@ namespace ToDoApplication.Code
     public static class TaskManager
     {
         private static TaskDaoManager taskDaoManager = new TaskDaoManager();
+        private static SharedTaskDaoManager sharedTaskDaoManager = new SharedTaskDaoManager();
 
         public static List<Task> GetAllTasks()
         {
@@ -16,6 +18,11 @@ namespace ToDoApplication.Code
         public static IList<Task> GetAllTasksByUser(long userId)
         {
             return taskDaoManager.GetAllByUserId(userId);
+        }
+
+        public static IList<SharedTasks> GetAllSharedTasksByUser(long userId)
+        {
+            return sharedTaskDaoManager.GetAllByUserId(userId);
         }
 
         public static IList<Task> GetAllTasksByGroup(long groupId)

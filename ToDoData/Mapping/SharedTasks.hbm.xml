@@ -2,7 +2,7 @@
   <class name="SharedTasks" table="dbo.SharedTasks" >
     <id name="Id" column="bintId" type="Int64" generator="native" />
     <property name="TaskId" column="bintTaskId" type="Int64" />
-    <property name="UserId" column="bintUserId" type="Int64" />
+    <property name="UserId" column="bintRecipientUserId" type="Int64" />
     <property name="ShareType" column="intShareType" type="Int32" />
     <property name="LastUpdate" column="dtLastUpdate" type="DateTime" />
     <property name="IsActive" column="bitIsActive" type="Boolean" />

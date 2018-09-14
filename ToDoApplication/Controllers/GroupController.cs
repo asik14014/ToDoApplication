@@ -56,6 +56,27 @@ namespace ToDoApplication.Controllers
         }
 
         /// <summary>
+        /// Достать все shared группы по пользователю
+        /// </summary>
+        /// <returns></returns>
+        //[HttpGet]
+        public object GetAllShared(long id)
+        {
+            logger.Log(LogLevel.Debug, $"TaskController.GetAllShared({id})");
+
+            try
+            {
+                return Json(GroupManager.GetAllSharedGroupsByUser(id), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogLevel.Error, $"TaskController.GetAllShared({id}) - {ex}");
+                //изменить http status code
+                return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
         /// Создать группу
         /// </summary>
         [HttpPut]

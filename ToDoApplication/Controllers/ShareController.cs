@@ -8,73 +8,78 @@ using System.Web.Mvc;
 
 namespace ToDoApplication.Controllers
 {
+    [RoutePrefix("api/Share")]
     //[Authorize]
     [AllowAnonymous]
     public class ShareController : Controller
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
-        public object Task(Task task, long userId, int type)
+        [HttpPost]
+        public object Task(long taskId, long userId, int type)
         {
-            logger.Log(LogLevel.Debug, $"ShareController.Task({Json(task)}, {userId})");
+            logger.Log(LogLevel.Debug, $"ShareController.Task({taskId}, {userId})");
             try
             {
-                return Json(ShareManager.ShareTask(task, userId, type), JsonRequestBehavior.AllowGet);
+                return Json(ShareManager.ShareTask(taskId, userId, type), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
-                logger.Log(LogLevel.Error, $"ShareController.Task({Json(task)}, {userId}) - {ex}");
+                logger.Log(LogLevel.Error, $"ShareController.Task({taskId}, {userId}) - {ex}");
                 //изменить http status code
                 return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
             }
         }
 
-        public object Group(Group group, long userId, int type)
+        [HttpPost]
+        public object Group(long groupId, long userId, int type)
         {
-            logger.Log(LogLevel.Debug, $"ShareController.Group({Json(group)}, {userId})");
+            logger.Log(LogLevel.Debug, $"ShareController.Group({groupId}, {userId})");
             try
             {
-                return Json(ShareManager.ShareGroup(group, userId, type), JsonRequestBehavior.AllowGet);
+                return Json(ShareManager.ShareGroup(groupId, userId, type), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
-                logger.Log(LogLevel.Error, $"ShareController.Group({Json(group)}, {userId}) - {ex}");
+                logger.Log(LogLevel.Error, $"ShareController.Group({groupId}, {userId}) - {ex}");
                 //изменить http status code
                 return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
             }
         }
 
-        public object DeleteTask(Task task, long userId)
+        [HttpDelete]
+        public object DeleteTask(long taskId, long userId)
         {
-            logger.Log(LogLevel.Debug, $"ShareController.DeleteTask({Json(task)}, {userId})");
+            logger.Log(LogLevel.Debug, $"ShareController.DeleteTask({taskId}, {userId})");
             try
             {
-                if (ShareManager.UnshareTask(task, userId))
+                if (ShareManager.UnshareTask(taskId, userId))
                     return new HttpStatusCodeResult(200);
                 else
                     return new HttpStatusCodeResult(404);
             }
             catch (Exception ex)
             {
-                logger.Log(LogLevel.Error, $"ShareController.DeleteTask({Json(task)}, {userId}) - {ex}");
+                logger.Log(LogLevel.Error, $"ShareController.DeleteTask({taskId}, {userId}) - {ex}");
                 //изменить http status code
                 return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
             }
         }
 
-        public object DeleteGroup(Group group, long userId)
+        [HttpDelete]
+        public object DeleteGroup(long groupId, long userId)
         {
-            logger.Log(LogLevel.Debug, $"ShareController.DeleteGroup({Json(group)}, {userId})");
+            logger.Log(LogLevel.Debug, $"ShareController.DeleteGroup({groupId}, {userId})");
             try
             {
-                if (ShareManager.UnshareGroup(group, userId))
+                if (ShareManager.UnshareGroup(groupId, userId))
                     return new HttpStatusCodeResult(200);
                 else
                     return new HttpStatusCodeResult(404);
             }
             catch (Exception ex)
             {
-                logger.Log(LogLevel.Error, $"ShareController.DeleteGroup({Json(group)}, {userId}) - {ex}");
+                logger.Log(LogLevel.Error, $"ShareController.DeleteGroup({groupId}, {userId}) - {ex}");
                 //изменить http status code
                 return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
             }
