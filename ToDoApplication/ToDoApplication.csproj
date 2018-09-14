@@ -248,6 +248,7 @@
     <Compile Include="Code\TaskManager.cs" />
     <Compile Include="Code\UserManager.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\FileController.cs" />
     <Compile Include="Controllers\GroupController.cs" />
     <Compile Include="Controllers\ShareController.cs" />
     <Compile Include="Controllers\TaskController.cs" />
