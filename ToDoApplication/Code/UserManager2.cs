@@ -16,8 +16,8 @@ namespace ToDoApplication.Code
 
         public static User Register(User user)
         {
-            var temp = FindUserInfo(user.Email);
-            if (temp != null) throw new Exception($"User already registered for email: {user.Email}");
+            var temp = FindUserInfo(user.UserName);
+            if (temp != null) throw new Exception($"User already registered for email: {user.UserName}");
 
             var result = userInfoDaoManager.Save(new UserInfo()
             {

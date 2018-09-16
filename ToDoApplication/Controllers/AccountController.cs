@@ -340,8 +340,8 @@ namespace ToDoApplication.Controllers
             //IdentityResult result = await UserManager.CreateAsync(user, model.Password);
             var user = new User()
             {
-                Email = model.Email,
-                Password = model.Password,
+                UserName = model.Email,
+                PasswordHash = model.Password,
                 IsActive = true,
                 UserType = (int)UserTypeEnum.Client,
                 AccountPlanId = (int)AccountPlanEnum.Start,

@@ -18,7 +18,7 @@ namespace TodoData.Dao
                     using (ITransaction transaction = session.BeginTransaction())
                     {
                         return session.QueryOver<User>()
-                            .Where(t => t.Email == email && t.Password == password)
+                            .Where(t => t.UserName == email && t.PasswordHash == password)
                             .SingleOrDefault();
                     }
                 }
@@ -38,7 +38,7 @@ namespace TodoData.Dao
                     using (ITransaction transaction = session.BeginTransaction())
                     {
                         return session.QueryOver<User>()
-                            .Where(t => t.Email == email)
+                            .Where(t => t.UserName == email)
                             .SingleOrDefault();
                     }
                 }
