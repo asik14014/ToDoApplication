@@ -1,5 +1,8 @@
-﻿using NHibernate;
+﻿using Microsoft.AspNet.Identity;
+using NHibernate;
 using NHibernate.Cfg;
+using TodoData.Models.User;
+using ToDoData;
 
 namespace TodoData
 {
@@ -11,6 +14,11 @@ namespace TodoData
             configuration.Configure();
             ISessionFactory sessionFactory = configuration.BuildSessionFactory();
             return sessionFactory.OpenSession();
+        }
+
+        public IUserStore<User, long> Users
+        {
+            get { return new IdentityStore(OpenSession()); }
         }
     }
 }

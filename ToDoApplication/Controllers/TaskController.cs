@@ -10,8 +10,8 @@ namespace ToDoApplication.Controllers
 {
     //[Route("api/[controller]")]
     [RoutePrefix("api/Task")]
-    [AllowAnonymous]
-    //[Authorize]
+    //[AllowAnonymous]
+    [Authorize]
     public class TaskController : Controller
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
@@ -21,6 +21,8 @@ namespace ToDoApplication.Controllers
         /// </summary>
         /// <returns></returns>
         //[Authorize]
+        [HttpGet]
+        [RequireHttps]
         public object Get(long id)
         {
             logger.Log(LogLevel.Debug, $"TaskController.Get({id})");
@@ -40,7 +42,7 @@ namespace ToDoApplication.Controllers
         /// Достать все задачи по пользователю
         /// </summary>
         /// <returns></returns>
-        //[HttpGet]
+        [HttpGet]
         public object GetAll(long id)
         {
             logger.Log(LogLevel.Debug, $"TaskController.GetAll({id})");
@@ -61,7 +63,7 @@ namespace ToDoApplication.Controllers
         /// Достать все shared задачи по пользователю
         /// </summary>
         /// <returns></returns>
-        //[HttpGet]
+        [HttpGet]
         public object GetAllShared(long id)
         {
             logger.Log(LogLevel.Debug, $"TaskController.GetAllShared({id})");

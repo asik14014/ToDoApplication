@@ -24,7 +24,7 @@ namespace ToDoApplication.Controllers
             logger.Log(LogLevel.Debug, $"UserController.Registration({Json(user)})");
             try
             {
-                var result = UserManager.Register(user);
+                var result = UserManager2.Register(user);
 
                 try
                 {
@@ -64,7 +64,7 @@ namespace ToDoApplication.Controllers
             logger.Log(LogLevel.Debug, $"UserController.Find({login})");
             try
             {
-                return UserManager.FindUserInfo(login);
+                return UserManager2.FindUserInfo(login);
             }
             catch (Exception ex)
             {
@@ -80,7 +80,7 @@ namespace ToDoApplication.Controllers
             logger.Log(LogLevel.Debug, $"UserController.Update({Json(user)})");
             try
             {
-                return UserManager.Update(user);
+                return UserManager2.Update(user);
             }
             catch (Exception ex)
             {

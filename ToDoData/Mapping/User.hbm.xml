@@ -1,7 +1,8 @@
 ﻿<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2" assembly="TodoData" namespace="TodoData.Models.User" >
   <class name="User" table="dbo.Users" >
     <id name="Id" column="bintId" type="Int64" generator="native" />
-    <property name="Email" column="vchEmail" type="string"/>
+    <property name="UserName" column="vchEmail" type="string"/>
+    <property name="PasswordHash" column="vchPassword" type="string"/>
     <property name="IsActive" column="bitIsActive" type="Boolean" />
     <property name="UserType" column="intUserType" type="Int32" />
     <property name="UserInfoId" column="bintUserInfoId" type="Int64" />

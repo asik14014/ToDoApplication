@@ -4,9 +4,10 @@ using TodoData.Models.User;
 
 namespace ToDoApplication.Code
 {
-    public static class UserManager
+    public static class UserManager2
     {
         private static UserDaoManager userDaoManager = new UserDaoManager();
+        private static UserInfoDaoManager userInfoDaoManager = new UserInfoDaoManager();
 
         public static User FindUser(string email, string password)
         {
@@ -15,6 +16,19 @@ namespace ToDoApplication.Code
 
         public static User Register(User user)
         {
+            var temp = FindUserInfo(user.Email);
+            if (temp != null) throw new Exception($"User already registered for email: {user.Email}");
+
+            var result = userInfoDaoManager.Save(new UserInfo()
+            {
+                PhotoUrl = string.Empty,
+                FirstName = string.Empty,
+                LastName = string.Empty,
+                PhoneNumber = string.Empty,
+                RawData = string.Empty
+            });
+            user.UserInfoId = result.Id;
+
             return userDaoManager.Save(user);
         }
 

@@ -2,8 +2,11 @@
   <class name="UserInfo" table="dbo.UsersInfo" >
     <id name="Id" column="bintId" type="Int64" generator="native" />
     <property name="PhotoUrl" column="vchPhotoUrl" type="string"/>
-    <property name="FirstName" column="vchName" type="string"/><!--Создать поля в базе-->
-    <property name="LastName" column="vchName" type="string"/> <!--Создать поля в базе-->
+    <property name="FirstName" column="vchName" type="string"/>
+    <!--<property name="FirstName" column="vchName" type="string"/>-->
+    <!--Создать поля в базе-->
+    <!--<property name="LastName" column="vchName" type="string"/>-->
+    <!--Создать поля в базе-->
     <property name="PhoneNumber" column="vchTelNumber" type="string"/>
     <property name="RawData" column="vchRawJson" type="string"/>
   </class>

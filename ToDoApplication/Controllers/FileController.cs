@@ -1,24 +1,20 @@
-﻿using System;
-using NLog;
-using ToDoApplication.Code;
-using ToDoApplication.Models;
-using TodoData.Models.Group;
-using System.Web.Mvc;
-using ToDoApplication.Models.Request;
+﻿using NLog;
 using System.Threading.Tasks;
 using System.Net.Http;
+using System.Web.Http;
+using System.Net;
 
 namespace ToDoApplication.Controllers
 {
-    [RoutePrefix("api/Group")]
-    [AllowAnonymous]
+    [System.Web.Mvc.RoutePrefix("api/File")]
+    [System.Web.Mvc.AllowAnonymous]
     //[Authorize]
-    public class FileController : Controller
+    public class FileController : ApiController
     {
-        /*
         private static Logger logger = LogManager.GetCurrentClassLogger();
-        [HttpPost]
-        public async Task<System.Web.Http.IHttpActionResult> Upload()
+
+        [System.Web.Mvc.HttpPost]
+        public async Task<IHttpActionResult> Upload()
         {
             if (!Request.Content.IsMimeMultipartContent())
                 throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
@@ -33,6 +29,6 @@ namespace ToDoApplication.Controllers
             }
 
             return Ok();
-        }*/
+        }
     }
 }

@@ -16,6 +16,10 @@ using Microsoft.Owin.Security.OAuth;
 using ToDoApplication.Models;
 using ToDoApplication.Providers;
 using ToDoApplication.Results;
+using ToDoApplication.Code;
+using TodoData.Models.User;
+using ToDoData.Enum;
+using NLog;
 
 namespace ToDoApplication.Controllers
 {
@@ -25,6 +29,7 @@ namespace ToDoApplication.Controllers
     {
         private const string LocalLoginProvider = "Local";
         private ApplicationUserManager _userManager;
+        private static Logger logger = LogManager.GetCurrentClassLogger();
 
         public AccountController()
         {
@@ -323,21 +328,38 @@ namespace ToDoApplication.Controllers
         [Route("Register")]
         public async Task<IHttpActionResult> Register(RegisterBindingModel model)
         {
+            logger.Log(LogLevel.Info, $"Register({model.Email})");
             if (!ModelState.IsValid)
             {
+                logger.Log(LogLevel.Error, $"Register({model.Email}). Error: model state is not invalid");
                 return BadRequest(ModelState);
             }
 
-            var user = new ApplicationUser() { UserName = model.Email, Email = model.Email };
+            //var user = new ApplicationUser() { UserName = model.Email, Email = model.Email };
 
-            IdentityResult result = await UserManager.CreateAsync(user, model.Password);
-
-            if (!result.Succeeded)
+            //IdentityResult result = await UserManager.CreateAsync(user, model.Password);
+            var user = new User()
             {
-                return GetErrorResult(result);
-            }
+                Email = model.Email,
+                Password = model.Password,
+                IsActive = true,
+                UserType = (int)UserTypeEnum.Client,
+                AccountPlanId = (int)AccountPlanEnum.Start,
+                Registration = DateTime.Now,
+                LastUpdate = DateTime.Now
+            };
 
-            return Ok();
+            try
+            {
+                var result = UserManager2.Register(user);
+                logger.Log(LogLevel.Info, $"User: {model.Email} is registered successfully, userId: {result.Id}.");
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogLevel.Error, $"Register({model.Email}). Error: {ex}");
+                return InternalServerError(ex);
+            }
         }
 
         // POST api/Account/RegisterExternal

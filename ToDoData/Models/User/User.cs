@@ -1,14 +1,15 @@
 ﻿using System;
+using Microsoft.AspNet.Identity;
 
 namespace TodoData.Models.User
 {
-    public class User
+    public class User : IUser<long>
     {
-        public virtual long Id { get; set; }
+        public virtual long Id { get; protected set; }
 
-        public virtual string Email { get; set; }
+        public virtual string UserName { get; set; }
 
-        public virtual string Password { get; set; }
+        public virtual string PasswordHash { get; set; }
 
         public virtual bool IsActive { get; set; }
 
