@@ -32,6 +32,20 @@ namespace ToDoApplication.Code
             return userDaoManager.Save(user);
         }
 
+        public static UserInfo CreateUserInfo(string photoUrl, string firstName, string lastName, string phoneNumber, string rawData)
+        {
+            var result = userInfoDaoManager.Save(new UserInfo()
+            {
+                PhotoUrl = photoUrl,
+                FirstName = firstName,
+                LastName = lastName,
+                PhoneNumber = phoneNumber,
+                RawData = rawData
+            });
+
+            return result;
+        }
+
         public static User FindUserInfo(string email)
         {
             return userDaoManager.FindUser(email);

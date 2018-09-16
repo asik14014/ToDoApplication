@@ -20,6 +20,7 @@ using ToDoApplication.Code;
 using TodoData.Models.User;
 using ToDoData.Enum;
 using NLog;
+using ToDoApplication.Models.Identity;
 
 namespace ToDoApplication.Controllers
 {
@@ -28,30 +29,35 @@ namespace ToDoApplication.Controllers
     public class AccountController : ApiController
     {
         private const string LocalLoginProvider = "Local";
-        private ApplicationUserManager _userManager;
+        private UserManager _userManager;
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
         public AccountController()
         {
         }
 
-        public AccountController(ApplicationUserManager userManager,
+        public AccountController(UserManager userManager,
             ISecureDataFormat<AuthenticationTicket> accessTokenFormat)
         {
             UserManager = userManager;
             AccessTokenFormat = accessTokenFormat;
         }
 
-        public ApplicationUserManager UserManager
+        public UserManager UserManager
         {
             get
             {
-                return _userManager ?? Request.GetOwinContext().GetUserManager<ApplicationUserManager>();
+                return _userManager ?? Request.GetOwinContext().GetUserManager<UserManager>();
             }
             private set
             {
                 _userManager = value;
             }
+        }
+
+        public SignInManager SignInManager
+        {
+            get { return Request.GetOwinContext().Get<SignInManager>(); }
         }
 
         public ISecureDataFormat<AuthenticationTicket> AccessTokenFormat { get; private set; }
@@ -75,10 +81,12 @@ namespace ToDoApplication.Controllers
         [Route("Logout")]
         public IHttpActionResult Logout()
         {
-            Authentication.SignOut(CookieAuthenticationDefaults.AuthenticationType);
+            //Authentication.SignOut(CookieAuthenticationDefaults.AuthenticationType);
+            SignInManager.SignOut();
             return Ok();
         }
 
+        /*
         // GET api/Account/ManageInfo?returnUrl=%2F&generateState=true
         [Route("ManageInfo")]
         public async Task<ManageInfoViewModel> GetManageInfo(string returnUrl, bool generateState = false)
@@ -118,6 +126,7 @@ namespace ToDoApplication.Controllers
                 ExternalLoginProviders = GetExternalLogins(returnUrl, generateState)
             };
         }
+        */
 
         // POST api/Account/ChangePassword
         [Route("ChangePassword")]
@@ -128,7 +137,7 @@ namespace ToDoApplication.Controllers
                 return BadRequest(ModelState);
             }
 
-            IdentityResult result = await UserManager.ChangePasswordAsync(User.Identity.GetUserId(), model.OldPassword,
+            IdentityResult result = await UserManager.ChangePasswordAsync(Convert.ToInt64(User.Identity.GetUserId()), model.OldPassword,
                 model.NewPassword);
             
             if (!result.Succeeded)
@@ -148,7 +157,7 @@ namespace ToDoApplication.Controllers
                 return BadRequest(ModelState);
             }
 
-            IdentityResult result = await UserManager.AddPasswordAsync(User.Identity.GetUserId(), model.NewPassword);
+            IdentityResult result = await UserManager.AddPasswordAsync(Convert.ToInt64(User.Identity.GetUserId()), model.NewPassword);
 
             if (!result.Succeeded)
             {
@@ -185,7 +194,7 @@ namespace ToDoApplication.Controllers
                 return BadRequest("The external login is already associated with an account.");
             }
 
-            IdentityResult result = await UserManager.AddLoginAsync(User.Identity.GetUserId(),
+            IdentityResult result = await UserManager.AddLoginAsync(Convert.ToInt64(User.Identity.GetUserId()),
                 new UserLoginInfo(externalData.LoginProvider, externalData.ProviderKey));
 
             if (!result.Succeeded)
@@ -209,11 +218,11 @@ namespace ToDoApplication.Controllers
 
             if (model.LoginProvider == LocalLoginProvider)
             {
-                result = await UserManager.RemovePasswordAsync(User.Identity.GetUserId());
+                result = await UserManager.RemovePasswordAsync(Convert.ToInt64(User.Identity.GetUserId()));
             }
             else
             {
-                result = await UserManager.RemoveLoginAsync(User.Identity.GetUserId(),
+                result = await UserManager.RemoveLoginAsync(Convert.ToInt64(User.Identity.GetUserId()),
                     new UserLoginInfo(model.LoginProvider, model.ProviderKey));
             }
 
@@ -225,6 +234,7 @@ namespace ToDoApplication.Controllers
             return Ok();
         }
 
+        /*
         // GET api/Account/ExternalLogin
         [OverrideAuthentication]
         [HostAuthentication(DefaultAuthenticationTypes.ExternalCookie)]
@@ -280,7 +290,7 @@ namespace ToDoApplication.Controllers
             }
 
             return Ok();
-        }
+        }*/
 
         // GET api/Account/ExternalLogins?returnUrl=%2F&generateState=true
         [AllowAnonymous]
@@ -323,6 +333,28 @@ namespace ToDoApplication.Controllers
             return logins;
         }
 
+        // POST api/Account/Login
+        [HttpPost]
+        [AllowAnonymous]
+        [Route("Login")]
+        public async Task<IHttpActionResult> Login(LoginBindingModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = SignInManager.PasswordSignIn(model.UserName, model.Password, false, false);
+                if (result == SignInStatus.Success)
+                {
+                    return Ok();
+                }
+                else
+                {
+                    ModelState.AddModelError("", "The user name or password provided is incorrect.");
+                }
+            }
+
+            return BadRequest(ModelState);
+        }
+
         // POST api/Account/Register
         [AllowAnonymous]
         [Route("Register")]
@@ -336,8 +368,31 @@ namespace ToDoApplication.Controllers
             }
 
             //var user = new ApplicationUser() { UserName = model.Email, Email = model.Email };
+            var userInfo = UserManager2.CreateUserInfo("", "", "", "", "");
 
-            //IdentityResult result = await UserManager.CreateAsync(user, model.Password);
+            var user = new User()
+            {
+                UserName = model.Email,
+                PasswordHash = model.Password,
+                IsActive = true,
+                UserInfoId = userInfo.Id,
+                UserType = (int)UserTypeEnum.Client,
+                AccountPlanId = (int)AccountPlanEnum.Start,
+                Registration = DateTime.Now,
+                LastUpdate = DateTime.Now
+            };
+
+            IdentityResult result = await UserManager.CreateAsync(user, model.Password);
+
+            if (!result.Succeeded)
+            {
+                return GetErrorResult(result);
+            }
+
+            SignInManager.SignIn(user, false, false);
+            return Ok();
+
+            /*
             var user = new User()
             {
                 UserName = model.Email,
@@ -359,7 +414,7 @@ namespace ToDoApplication.Controllers
             {
                 logger.Log(LogLevel.Error, $"Register({model.Email}). Error: {ex}");
                 return InternalServerError(ex);
-            }
+            }*/
         }
 
         // POST api/Account/RegisterExternal
@@ -379,7 +434,17 @@ namespace ToDoApplication.Controllers
                 return InternalServerError();
             }
 
-            var user = new ApplicationUser() { UserName = model.Email, Email = model.Email };
+            //var user = new ApplicationUser() { UserName = model.Email, Email = model.Email };
+            var user = new User()
+            {
+                UserName = model.Email,
+                PasswordHash = null,//???
+                IsActive = true,
+                UserType = (int)UserTypeEnum.Client,
+                AccountPlanId = (int)AccountPlanEnum.Start,
+                Registration = DateTime.Now,
+                LastUpdate = DateTime.Now
+            };
 
             IdentityResult result = await UserManager.CreateAsync(user);
             if (!result.Succeeded)
