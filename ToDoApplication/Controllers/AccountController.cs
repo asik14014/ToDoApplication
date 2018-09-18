@@ -276,15 +276,34 @@ namespace ToDoApplication.Controllers
                 ClaimsIdentity cookiesIdentity = await UserManager.CreateIdentityAsync(user, CookieAuthenticationDefaults.AuthenticationType);
 
                 AuthenticationProperties properties = ApplicationOAuthProvider.CreateProperties(user.UserName);
-                //SignInManager.SignIn();
-                Authentication.SignIn(properties, oAuthIdentity, cookiesIdentity);
+                SignInManager.SignIn(user, false, false);
+                //Authentication.SignIn(properties, oAuthIdentity, cookiesIdentity);
             }
             else
             {
                 IEnumerable<Claim> claims = externalLogin.GetClaims();
                 ClaimsIdentity identity = new ClaimsIdentity(claims, OAuthDefaults.AuthenticationType);
-                //SignInManager.SignIn();
-                Authentication.SignIn(identity);
+
+                var userInfo = UserManager2.CreateUserInfo("", externalLogin.UserName, "", "", "");
+
+                user = new User()
+                {
+                    UserName = externalLogin.UserName,
+                    PasswordHash = null,
+                    IsActive = true,
+                    UserType = (int)UserTypeEnum.Client,
+                    UserInfoId = userInfo.Id,
+                    AccountPlanId = (int)AccountPlanEnum.Start,
+                    Registration = DateTime.Now,
+                    LastUpdate = DateTime.Now
+                };
+
+                IdentityResult result = await UserManager.CreateAsync(user);
+
+                IdentityResult loginResult = await UserManager.AddLoginAsync(user.Id, new UserLoginInfo(externalLogin.LoginProvider, externalLogin.ProviderKey));
+
+                SignInManager.SignIn(user, false, false);
+                //Authentication.SignIn(identity);
             }
 
             return Ok();

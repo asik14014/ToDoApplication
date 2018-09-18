@@ -147,6 +147,7 @@
     <Compile Include="Models\User\AccountPlan.cs" />
     <Compile Include="Models\User\User.cs" />
     <Compile Include="Models\User\UserInfo.cs" />
+    <Compile Include="Models\User\UserLogin.cs" />
     <Compile Include="Models\User\UserType.cs" />
     <Compile Include="NHibertnateSession.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -195,7 +196,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Mapping\UserLogin.hbm.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
