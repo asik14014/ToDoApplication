@@ -309,6 +309,66 @@ namespace ToDoApplication.Controllers
             return Ok();
         }
 
+        // GET api/Account/ProcessExternalLogin
+        [OverrideAuthentication]
+        [HostAuthentication(DefaultAuthenticationTypes.ExternalCookie)]
+        [AllowAnonymous]
+        [Route("ProcessExternalLogin", Name = "ProcessExternalLogin")]
+        public async Task<IHttpActionResult> ProcessExternalLogin()
+        {
+            ExternalLoginData externalLogin = ExternalLoginData.FromIdentity(User.Identity as ClaimsIdentity);
+
+            if (externalLogin == null)
+            {
+                return InternalServerError();
+            }
+
+            var user = await UserManager.FindAsync(new UserLoginInfo(externalLogin.LoginProvider, externalLogin.ProviderKey));
+
+            bool hasRegistered = user != null;
+
+            if (!hasRegistered)
+            { 
+                //зарегестрировать и авторизировать пользователя
+                IEnumerable<Claim> claims = externalLogin.GetClaims();
+                ClaimsIdentity identity = new ClaimsIdentity(claims, OAuthDefaults.AuthenticationType);
+
+                var userInfo = UserManager2.CreateUserInfo("", externalLogin.UserName, "", "", "");
+
+                user = new User()
+                {
+                    UserName = externalLogin.UserName,
+                    PasswordHash = null,
+                    IsActive = true,
+                    UserType = (int)UserTypeEnum.Client,
+                    UserInfoId = userInfo.Id,
+                    AccountPlanId = (int)AccountPlanEnum.Start,
+                    Registration = DateTime.Now,
+                    LastUpdate = DateTime.Now
+                };
+
+                IdentityResult result = await UserManager.CreateAsync(user);
+
+                IdentityResult loginResult = await UserManager.AddLoginAsync(user.Id, new UserLoginInfo(externalLogin.LoginProvider, externalLogin.ProviderKey));
+
+                //SignInManager.SignIn(user, false, false);
+                //Authentication.SignIn(identity);
+            }
+
+            //авторизировать пользователя
+            SignInManager.SignOut();
+            //Authentication.SignOut(DefaultAuthenticationTypes.ExternalCookie);
+
+            ClaimsIdentity oAuthIdentity = await UserManager.CreateIdentityAsync(user, OAuthDefaults.AuthenticationType);
+            ClaimsIdentity cookiesIdentity = await UserManager.CreateIdentityAsync(user, CookieAuthenticationDefaults.AuthenticationType);
+
+            AuthenticationProperties properties = ApplicationOAuthProvider.CreateProperties(user.UserName);
+            SignInManager.SignIn(user, false, false);
+            //Authentication.SignIn(properties, oAuthIdentity, cookiesIdentity);
+
+            return Ok();
+        }
+
         // GET api/Account/ExternalLogins?returnUrl=%2F&generateState=true
         [AllowAnonymous]
         [Route("ExternalLogins")]
