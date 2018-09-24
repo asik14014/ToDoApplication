@@ -1,15 +1,18 @@
 ﻿using Microsoft.AspNet.Identity;
 using NHibernate;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using TodoData.Models.User;
+using System.Linq;
 
 namespace ToDoData
 {
     public class IdentityStore : IUserStore<User, long>,
         IUserPasswordStore<User, long>,
         IUserLockoutStore<User, long>,
-        IUserTwoFactorStore<User, long>
+        IUserTwoFactorStore<User, long>,
+        IUserLoginStore<User, long>
     {
         private readonly ISession session;
 
@@ -115,10 +118,56 @@ namespace ToDoData
             return Task.FromResult(false);
         }
         #endregion
-
+        
         public void Dispose()
         {
             //do nothing
+        }
+
+        public Task AddLoginAsync(User user, UserLoginInfo login)
+        {
+            return Task.Run(() => session.SaveOrUpdate(new UserLogin()
+            {
+                LoginProvider = login.LoginProvider,
+                ProviderKey = login.ProviderKey,
+                UserId = user.Id
+            }));
+        }
+
+        public Task RemoveLoginAsync(User user, UserLoginInfo login)
+        {
+            return Task.Run(() => session.Delete(new UserLogin()
+            {
+                LoginProvider = login.LoginProvider,
+                ProviderKey = login.ProviderKey,
+                UserId = user.Id
+            }));
+        }
+
+        public Task<IList<UserLoginInfo>> GetLoginsAsync(User user)
+        {
+            return Task.Run(() =>
+            {
+                return (IList<UserLoginInfo>)session.QueryOver<UserLogin>()
+                .Where(u => u.UserId == user.Id).List()
+                .Select(i => new UserLoginInfo(i.LoginProvider, i.ProviderKey)).ToList();
+            });
+        }
+
+        public Task<User> FindAsync(UserLoginInfo login)
+        {
+            return Task.Run(() =>
+            {
+                var userLogin = session.QueryOver<UserLogin>()
+                    .Where(u => u.LoginProvider == login.LoginProvider && u.ProviderKey == login.ProviderKey)
+                    .SingleOrDefault();
+
+                if (userLogin == null) return null;
+
+                return session.QueryOver<User>()
+                    .Where(u => u.Id == userLogin.UserId)
+                    .SingleOrDefault();
+            });
         }
     }
 }

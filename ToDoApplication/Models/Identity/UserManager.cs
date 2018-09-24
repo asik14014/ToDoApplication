@@ -9,7 +9,7 @@ namespace ToDoApplication.Models.Identity
         public UserManager(IUserStore<User, long> store)
             : base(store)
         {
-            UserValidator = new UserValidator<User, long>(this);
+            UserValidator = new UserValidator<User, long>(this) { AllowOnlyAlphanumericUserNames = false };
             PasswordValidator = new PasswordValidator();
         }
     }
