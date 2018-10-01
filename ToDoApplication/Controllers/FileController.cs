@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using System.Net.Http;
 using System.Web.Http;
 using System.Net;
+using ToDoApplication.Code;
 
 namespace ToDoApplication.Controllers
 {
@@ -21,11 +22,15 @@ namespace ToDoApplication.Controllers
 
             var provider = new MultipartMemoryStreamProvider();
             await Request.Content.ReadAsMultipartAsync(provider);
+
+            var fileManager = new FileManager();
             foreach (var file in provider.Contents)
             {
                 var filename = file.Headers.ContentDisposition.FileName.Trim('\"');
                 var buffer = await file.ReadAsByteArrayAsync();
                 //Do whatever you want with filename and its binary data.
+
+                fileManager.UploadFileAsync(buffer, "test.png");//pass file stream
             }
 
             return Ok();
