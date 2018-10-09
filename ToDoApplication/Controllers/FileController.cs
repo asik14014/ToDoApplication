@@ -30,7 +30,12 @@ namespace ToDoApplication.Controllers
                 var buffer = await file.ReadAsByteArrayAsync();
                 //Do whatever you want with filename and its binary data.
 
-                fileManager.UploadFileAsync(buffer, "test.png");//pass file stream
+                var result = fileManager.UploadFileAsync(buffer, "test.png");//pass file stream
+
+                if (!string.IsNullOrEmpty(result.Result))
+                {
+                    return BadRequest(result.Result);
+                }
             }
 
             return Ok();

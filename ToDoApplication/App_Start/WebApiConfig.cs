@@ -26,7 +26,7 @@ namespace ToDoApplication
                 defaults: new { id = RouteParameter.Optional }
             );
 
-            config.Filters.Add(new RequireHttpsAttribute());
+            //config.Filters.Add(new RequireHttpsAttribute());
         }
     }
 }
