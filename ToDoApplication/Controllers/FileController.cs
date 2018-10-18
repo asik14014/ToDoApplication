@@ -1,8 +1,10 @@
 ﻿using NLog;
-using System.Threading.Tasks;
-using System.Net.Http;
-using System.Web.Http;
+using System.IO;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
+using System.Web.Http;
 using ToDoApplication.Code;
 
 namespace ToDoApplication.Controllers
@@ -39,6 +41,28 @@ namespace ToDoApplication.Controllers
             }
 
             return Ok();
+        }
+
+        [System.Web.Mvc.HttpGet]
+        public HttpResponseMessage Download(int taskId)
+        {
+            var stream = new MemoryStream();
+            // processing the stream.
+
+            var result = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new ByteArrayContent(stream.ToArray())
+            };
+
+            result.Content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
+            {
+                //TODO поменять на url 
+                FileName = "CertificationCard.pdf" // profile photo path
+            };
+
+            result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+
+            return result;
         }
     }
 }
