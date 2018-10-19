@@ -1,4 +1,5 @@
 ﻿using NLog;
+using System;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -17,7 +18,7 @@ namespace ToDoApplication.Controllers
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
         [System.Web.Mvc.HttpPost]
-        public async Task<IHttpActionResult> Upload()
+        public async Task<IHttpActionResult> Upload(long taskId)
         {
             if (!Request.Content.IsMimeMultipartContent())
                 throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
@@ -31,8 +32,10 @@ namespace ToDoApplication.Controllers
                 var filename = file.Headers.ContentDisposition.FileName.Trim('\"');
                 var buffer = await file.ReadAsByteArrayAsync();
                 //Do whatever you want with filename and its binary data.
+                var name = FileManager.RandomString();
 
-                var result = fileManager.UploadFileAsync(buffer, "test.png");//pass file stream
+                var result = fileManager.UploadFileAsync(buffer, $"{name}.png"); //pass file stream
+                fileManager.SaveAttachment(name, /*url картинки*/name, taskId);
 
                 if (!string.IsNullOrEmpty(result.Result))
                 {
@@ -46,23 +49,32 @@ namespace ToDoApplication.Controllers
         [System.Web.Mvc.HttpGet]
         public HttpResponseMessage Download(int taskId)
         {
-            var stream = new MemoryStream();
-            // processing the stream.
-
-            var result = new HttpResponseMessage(HttpStatusCode.OK)
+            try
             {
-                Content = new ByteArrayContent(stream.ToArray())
-            };
+                var fileManager = new FileManager();
+                var stream = new MemoryStream();
+                var result = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new ByteArrayContent(stream.ToArray())
+                };
 
-            result.Content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
+                var attachments = fileManager.GetAttachments(taskId);
+
+                result.Content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
+                {
+                    //TODO поменять на url 
+                    FileName = "CertificationCard.pdf" // profile photo path
+                };
+
+                result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+
+                return result;
+            }
+            catch (Exception ex)
             {
-                //TODO поменять на url 
-                FileName = "CertificationCard.pdf" // profile photo path
-            };
 
-            result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-
-            return result;
+                throw;
+            }
         }
     }
 }

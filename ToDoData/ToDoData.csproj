@@ -130,6 +130,7 @@
     <Compile Include="Dao\UserInfoDaoManager.cs" />
     <Compile Include="Dao\UserTypeDaoManager.cs" />
     <Compile Include="Enum\AccountPlanEnum.cs" />
+    <Compile Include="Enum\AttachmentTypeEnum.cs" />
     <Compile Include="Enum\GroupTypeEnum.cs" />
     <Compile Include="Enum\TaskStatusEnum.cs" />
     <Compile Include="Enum\UserTypeEnum.cs" />

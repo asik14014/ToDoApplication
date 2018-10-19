@@ -4,8 +4,13 @@ using Amazon.S3;
 using Amazon.S3.Transfer;
 using NLog;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using TodoData.Dao;
+using TodoData.Models.Attachment;
+using ToDoData.Enum;
 
 namespace ToDoApplication.Code
 {
@@ -18,6 +23,8 @@ namespace ToDoApplication.Code
         private static Logger logger = LogManager.GetCurrentClassLogger();
         public static string accessKey = "AKIAJKUTZUZE3W322FDA";
         public static string secretKey = "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";
+        private static Random random = new Random();
+
 
         public FileManager()
         {
@@ -69,6 +76,53 @@ namespace ToDoApplication.Code
                 return e.ToString();
             }
 
+        }
+
+        public static string RandomString(int length = 10)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            return new string(Enumerable.Repeat(chars, length)
+              .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
+        public bool SaveAttachment(string filename, string url, long taskId)
+        {
+            try
+            {
+                var manager = new AttachmentDaoManager();
+                var attachment = new Attachment()
+                {
+                    Id = 0,
+                    FileType = (int)AttachmentTypeEnum.UNKNOWN,
+                    FileName = filename,
+                    FileUrl = url,
+                    TaskId = taskId,
+                    LastUpdate = DateTime.Now
+                };
+                manager.Save(attachment);
+
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogLevel.Error, $"SaveAttachment error: {ex}");
+            }
+            return true;
+        }
+
+        public List<Attachment> GetAttachments(long taskId)
+        {
+            try
+            {
+                var manager = new AttachmentDaoManager();
+                var result = manager.GetAllByTask(taskId);
+
+                return result.ToList();
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogLevel.Error, $"GetAttachments error: {ex}");
+            }
+            return null;
         }
     }
 }
