@@ -20,34 +20,42 @@ namespace ToDoApplication.Controllers
         [System.Web.Mvc.HttpPost]
         public async Task<IHttpActionResult> Upload(long taskId)
         {
-            if (!Request.Content.IsMimeMultipartContent())
-                throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
-
-            var provider = new MultipartMemoryStreamProvider();
-            await Request.Content.ReadAsMultipartAsync(provider);
-
-            var fileManager = new FileManager();
-            foreach (var file in provider.Contents)
+            try
             {
-                var filename = file.Headers.ContentDisposition.FileName.Trim('\"');
-                var buffer = await file.ReadAsByteArrayAsync();
-                //Do whatever you want with filename and its binary data.
-                var name = FileManager.RandomString();
+                if (!Request.Content.IsMimeMultipartContent())
+                    throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
 
-                var result = fileManager.UploadFileAsync(buffer, $"{name}.png"); //pass file stream
-                fileManager.SaveAttachment(name, /*url картинки*/name, taskId);
+                var provider = new MultipartMemoryStreamProvider();
+                await Request.Content.ReadAsMultipartAsync(provider);
 
-                if (!string.IsNullOrEmpty(result.Result))
+                var fileManager = new FileManager();
+                foreach (var file in provider.Contents)
                 {
-                    return BadRequest(result.Result);
+                    var filename = file.Headers.ContentDisposition.FileName.Trim('\"');
+                    var buffer = await file.ReadAsByteArrayAsync();
+                    //Do whatever you want with filename and its binary data.
+                    var randomString = FileManager.RandomString();
+                    var name = $"{randomString}.png";
+                    var result = fileManager.UploadFileAsync(buffer, name); //pass file stream
+                    fileManager.SaveAttachment(name, /*url картинки*/name, taskId);
+
+                    if (!string.IsNullOrEmpty(result.Result))
+                    {
+                        return BadRequest(result.Result);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogLevel.Error, ex);
+                return InternalServerError();
             }
 
             return Ok();
         }
 
         [System.Web.Mvc.HttpGet]
-        public HttpResponseMessage Download(int taskId)
+        public HttpResponseMessage Download(int taskId, string filename)
         {
             try
             {
@@ -58,12 +66,11 @@ namespace ToDoApplication.Controllers
                     Content = new ByteArrayContent(stream.ToArray())
                 };
 
-                var attachments = fileManager.GetAttachments(taskId);
-
+                var attachment = fileManager.GetAttachment(taskId, filename);
                 result.Content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
                 {
                     //TODO поменять на url 
-                    FileName = "CertificationCard.pdf" // profile photo path
+                    FileName = attachment.FileName
                 };
 
                 result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
@@ -72,8 +79,8 @@ namespace ToDoApplication.Controllers
             }
             catch (Exception ex)
             {
-
-                throw;
+                logger.Log(LogLevel.Error, ex);
+                return new HttpResponseMessage(HttpStatusCode.InternalServerError);
             }
         }
     }

@@ -124,5 +124,21 @@ namespace ToDoApplication.Code
             }
             return null;
         }
+
+        public Attachment GetAttachment(long taskId, string name)
+        {
+            try
+            {
+                var manager = new AttachmentDaoManager();
+                var result = manager.GetAllByTaskAndName(taskId, name);
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogLevel.Error, $"GetAttachments error: {ex}");
+            }
+            return null;
+        }
     }
 }
