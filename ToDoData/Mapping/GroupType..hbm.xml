@@ -1,5 +1,5 @@
 ﻿<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2" assembly="TodoData" namespace="TodoData.Models.Group" >
-  <class name="GroupType" table="dbo.GroupTypes" >
+  <class name="GroupType" table="grouptypes" >
     <id name="Id" column="intId" type="Int32" generator="native" />
     <property name="Name" column="vchName" type="string"/>
   </class>

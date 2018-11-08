@@ -1,5 +1,5 @@
 ﻿<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2" assembly="TodoData" namespace="TodoData.Models.User" >
-  <class name="UserLogin" table="dbo.UserLogins" >
+  <class name="UserLogin" table="userlogins" >
     <id name="Id" column="bintId" type="Int64" generator="native" />
     <property name="LoginProvider" column="vchLoginProvider" type="string"/>
     <property name="ProviderKey" column="vchProviderKey" type="string"/>

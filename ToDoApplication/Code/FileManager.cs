@@ -4,71 +4,29 @@ using Amazon.S3;
 using Amazon.S3.Transfer;
 using NLog;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using TodoData.Dao;
+using TodoData.Models.Attachment;
 
 namespace ToDoApplication.Code
 {
-    public class FileManager
+    public static class FileManager
     {
-        private const string bucketName = "todoappdata";
-        // Specify your bucket region (an example region is shown).
-        private static readonly RegionEndpoint bucketRegion = RegionEndpoint.EUCentral1;
-        private static IAmazonS3 s3Client;
         private static Logger logger = LogManager.GetCurrentClassLogger();
-        public static string accessKey = "AKIAJKUTZUZE3W322FDA";
-        public static string secretKey = "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";
+        private static AttachmentDaoManager attachmentDaoManager = new AttachmentDaoManager();
+        private static AttachmentTypeDaoManager attachmentTypeDaoManager = new AttachmentTypeDaoManager();
+        private static TaskDaoManager taskDaoManager = new TaskDaoManager();
 
-        public FileManager()
+        public static void SaveAttachment(Attachment file)
         {
-            AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
-            AmazonS3Config config = new AmazonS3Config();
-            config.ServiceURL = "s3.amazonaws.com";
-            config.RegionEndpoint = RegionEndpoint.EUCentral1;//Amazon.RegionEndpoint.GetBySystemName("us-east-1");
-            s3Client = new AmazonS3Client(credentials, config);
-
-
-            //s3Client = new AmazonS3Client(bucketRegion);
+            attachmentDaoManager.Save(file);
         }
 
-        public async Task UploadFileAsync(string filePath, string keyName)
+        public static IList<Attachment> GetAttachments(long taskId)
         {
-            try
-            {
-                var fileTransferUtility = new TransferUtility(s3Client);
-                await fileTransferUtility.UploadAsync(filePath, bucketName, keyName);
-            }
-            catch (AmazonS3Exception e)
-            {
-                logger.Log(LogLevel.Error, $"Error encountered on server. Message:'{e.Message}' when writing an object");
-            }
-            catch (Exception e)
-            {
-                logger.Log(LogLevel.Error, $"Unknown encountered on server. Message:'{e.Message}' when writing an object");
-            }
-
-        }
-
-        public async Task<string> UploadFileAsync(byte[] inputData, string keyName)
-        {
-            try
-            {
-                Stream input = new MemoryStream(inputData);
-                var fileTransferUtility = new TransferUtility(s3Client);
-                await fileTransferUtility.UploadAsync(input, bucketName, keyName);
-                return null;
-            }
-            catch (AmazonS3Exception e)
-            {
-                logger.Log(LogLevel.Error, $"Error encountered on server. Message:'{e.Message}' when writing an object");
-                return e.ToString();
-            }
-            catch (Exception e)
-            {
-                logger.Log(LogLevel.Error, $"Unknown encountered on server. Message:'{e.Message}' when writing an object");
-                return e.ToString();
-            }
-
+            return attachmentDaoManager.GetAllByTaskId(taskId);
         }
     }
 }

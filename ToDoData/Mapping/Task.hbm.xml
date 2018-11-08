@@ -1,5 +1,5 @@
 ﻿<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2" assembly="TodoData" namespace="TodoData.Models.Task" >
-  <class name="Task" table="dbo.Tasks" >
+  <class name="Task" table="tasks" >
     <id name="Id" column="bintId" type="Int64" generator="native" />
     <property name="UserId" column="bintUserId" type="Int64" />
     <property name="GroupId" column="bintGroupId" type="Int64" />

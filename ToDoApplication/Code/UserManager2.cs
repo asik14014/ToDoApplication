@@ -22,8 +22,7 @@ namespace ToDoApplication.Code
             var result = userInfoDaoManager.Save(new UserInfo()
             {
                 PhotoUrl = string.Empty,
-                FirstName = string.Empty,
-                LastName = string.Empty,
+                Name = string.Empty,
                 PhoneNumber = string.Empty,
                 RawData = string.Empty
             });
@@ -37,8 +36,7 @@ namespace ToDoApplication.Code
             var result = userInfoDaoManager.Save(new UserInfo()
             {
                 PhotoUrl = photoUrl,
-                FirstName = firstName,
-                LastName = lastName,
+                Name = $"{firstName} {lastName}",
                 PhoneNumber = phoneNumber,
                 RawData = rawData
             });

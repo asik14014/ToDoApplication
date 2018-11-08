@@ -1,5 +1,5 @@
 ﻿<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2" assembly="TodoData" namespace ="TodoData.Models" >
-  <class name="Currency" table="dbo.Currencies" >
+  <class name="Currency" table="currencies" >
     <id name="Id" column="intId" type ="Int32" generator="native" />
     <property name="Name" column="vchName" type="string"/>
     <property name="Code" column="intCode" type="Int32"/>
