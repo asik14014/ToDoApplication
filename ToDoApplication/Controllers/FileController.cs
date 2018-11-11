@@ -6,6 +6,9 @@ using System.Net;
 using ToDoApplication.Code;
 using System;
 using TodoData.Models.Attachment;
+using System.IO;
+using System.Linq;
+using System.Net.Http.Headers;
 
 namespace ToDoApplication.Controllers
 {
@@ -63,6 +66,35 @@ namespace ToDoApplication.Controllers
         {
             //TODO прописать скачивание файла
             return Ok();
+        }
+
+        [System.Web.Mvc.HttpGet]
+        public HttpResponseMessage DownloadFile(int taskId, string filename)
+        {
+            try
+            {
+                var stream = new MemoryStream();
+                var result = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new ByteArrayContent(stream.ToArray())
+                };
+
+                //TODO поменять на url 
+                var attachments = FileManager.GetAttachments(taskId);
+                result.Content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
+                {
+                    FileName = attachments.First().FileName
+                };
+
+                result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogLevel.Error, ex);
+                return new HttpResponseMessage(HttpStatusCode.InternalServerError);
+            }
         }
     }
 }

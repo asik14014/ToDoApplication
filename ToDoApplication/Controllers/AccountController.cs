@@ -433,6 +433,7 @@ namespace ToDoApplication.Controllers
         }
 
         // POST api/Account/Register
+        [HttpPost]
         [AllowAnonymous]
         [Route("Register")]
         public async Task<IHttpActionResult> Register(RegisterBindingModel model)

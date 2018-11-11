@@ -1,5 +1,5 @@
 ﻿<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2" assembly ="TodoData" namespace ="TodoData.Models.User" >
-  <class name="AccountPlan" table="accountplans" >
+  <class name="AccountPlan" table="AccountPlans" >
     <id name ="Id" column ="bintId" type ="Int32" generator="native" />
     <property name="Name" column="vchName" type="string"/>
     <property name="Description" column="vchDescription" type="string" />

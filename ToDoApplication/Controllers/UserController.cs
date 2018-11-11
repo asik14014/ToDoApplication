@@ -108,7 +108,7 @@ namespace ToDoApplication.Controllers
             var provider = new MultipartMemoryStreamProvider();
             await Request.Content.ReadAsMultipartAsync(provider);
 
-            var fileManager = new FileManager();
+            var fileManager = new AzureFileManager();
             foreach (var file in provider.Contents)
             {
                 var filename = file.Headers.ContentDisposition.FileName.Trim('\"');

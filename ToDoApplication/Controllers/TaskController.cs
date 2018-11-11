@@ -8,8 +8,9 @@ using ToDoApplication.Models.Request;
 
 namespace ToDoApplication.Controllers
 {
-    //[Route("api/[controller]")]
-    [RoutePrefix("api/Task")]
+    //[RoutePrefix("api/Task")]
+    //[RoutePrefix("api")]
+    //[RoutePrefix("Task")]
     //[AllowAnonymous]
     [Authorize]
     public class TaskController : Controller

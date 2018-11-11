@@ -1,5 +1,5 @@
 ﻿<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2" assembly="TodoData" namespace="TodoData.Models.User" >
-  <class name="User" table="users" >
+  <class name="User" table="Users" >
     <id name="Id" column="bintId" generator="native" />
     <property name="UserName" column="vchEmail"/>
     <property name="PasswordHash" column="vchPassword"/>
