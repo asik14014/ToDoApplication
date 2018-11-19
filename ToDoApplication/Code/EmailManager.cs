@@ -21,7 +21,7 @@ namespace ToDoApplication.Code
 
                 client.DeliveryMethod = SmtpDeliveryMethod.Network;
                 client.UseDefaultCredentials = false;
-                client.Credentials = new System.Net.NetworkCredential(companyEmail, "0190335ASKHATAa");
+                client.Credentials = new System.Net.NetworkCredential(companyEmail, "");
 
                 mail.Subject = "Восстановление пароля.";
                 mail.Body = $"Ваш новый временный пароль: {newPassword}";
