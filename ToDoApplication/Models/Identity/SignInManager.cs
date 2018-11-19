@@ -3,13 +3,12 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
 using Microsoft.Owin.Security;
-using TodoData.Models.User;
 
 namespace ToDoApplication.Models.Identity
 {
-    public class SignInManager : SignInManager<User, long>
+    public class SignInManager : SignInManager<TodoData.Models.User.User, long>
     {
-        public SignInManager(UserManager<User, long> userManager, IAuthenticationManager authenticationManager)
+        public SignInManager(UserManager<TodoData.Models.User.User, long> userManager, IAuthenticationManager authenticationManager)
             : base(userManager, authenticationManager) { }
 
         public void SignOut()

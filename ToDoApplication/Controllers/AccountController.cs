@@ -1,4 +1,10 @@
-﻿using System;
+﻿using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.Owin;
+using Microsoft.Owin.Security;
+using Microsoft.Owin.Security.Cookies;
+using Microsoft.Owin.Security.OAuth;
+using NLog;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Security.Claims;
@@ -6,21 +12,14 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
-using System.Web.Http.ModelBinding;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.EntityFramework;
-using Microsoft.AspNet.Identity.Owin;
-using Microsoft.Owin.Security;
-using Microsoft.Owin.Security.Cookies;
-using Microsoft.Owin.Security.OAuth;
+using ToDoApplication.Code;
+using ToDoApplication.Code.Helper;
 using ToDoApplication.Models;
+using ToDoApplication.Models.Identity;
 using ToDoApplication.Providers;
 using ToDoApplication.Results;
-using ToDoApplication.Code;
 using TodoData.Models.User;
 using ToDoData.Enum;
-using NLog;
-using ToDoApplication.Models.Identity;
 
 namespace ToDoApplication.Controllers
 {
@@ -138,13 +137,49 @@ namespace ToDoApplication.Controllers
 
             IdentityResult result = await UserManager.ChangePasswordAsync(Convert.ToInt64(User.Identity.GetUserId()), model.OldPassword,
                 model.NewPassword);
-            
+
             if (!result.Succeeded)
             {
                 return GetErrorResult(result);
             }
 
             return Ok();
+        }
+
+        [AllowAnonymous]
+        [Route("ResetPassword")]
+        public async Task<IHttpActionResult> ResetPassword(ResetPasswordBindingModel model)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            try
+            {
+                var user = UserManager2.FindUserInfo(model.Email);
+                if (user == null) return BadRequest("email not found");
+
+                var newPassword = NameGenerator.RandomString(7);
+                var emailResult = EmailManager.SendNewPassword(model.Email, newPassword);
+
+                if (emailResult)
+                {
+                    //update password in db
+                    IdentityResult result = await UserManager.AddPasswordAsync(user.Id, newPassword);
+
+                    if (!result.Succeeded)
+                    {
+                        return GetErrorResult(result);
+                    }
+
+                    return Ok();
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogLevel.Error, $"ResetPassword error: {ex}");
+                return BadRequest(ex.Message);
+            }
+
+            return BadRequest();
         }
 
         // POST api/Account/SetPassword
@@ -328,7 +363,7 @@ namespace ToDoApplication.Controllers
             bool hasRegistered = user != null;
 
             if (!hasRegistered)
-            { 
+            {
                 //зарегестрировать и авторизировать пользователя
                 IEnumerable<Claim> claims = externalLogin.GetClaims();
                 ClaimsIdentity identity = new ClaimsIdentity(claims, OAuthDefaults.AuthenticationType);
@@ -412,6 +447,8 @@ namespace ToDoApplication.Controllers
 
         // POST api/Account/Login
         [HttpPost]
+        [OverrideAuthentication]
+        [HostAuthentication(DefaultAuthenticationTypes.ExternalBearer)]
         [AllowAnonymous]
         [Route("Login")]
         public async Task<IHttpActionResult> Login(LoginBindingModel model)
@@ -421,6 +458,11 @@ namespace ToDoApplication.Controllers
                 var result = SignInManager.PasswordSignIn(model.UserName, model.Password, false, false);
                 if (result == SignInStatus.Success)
                 {
+                    var user = UserManager2.FindUser(model.UserName, model.Password);
+                    ClaimsIdentity oAuthIdentity = await UserManager.CreateIdentityAsync(user, OAuthDefaults.AuthenticationType);
+                    ClaimsIdentity cookiesIdentity = await UserManager.CreateIdentityAsync(user, CookieAuthenticationDefaults.AuthenticationType);
+                    AuthenticationProperties properties = ApplicationOAuthProvider.CreateProperties(user.UserName);
+                    Authentication.SignIn(properties, oAuthIdentity, cookiesIdentity);
                     return Ok();
                 }
                 else
@@ -467,7 +509,12 @@ namespace ToDoApplication.Controllers
                 return GetErrorResult(result);
             }
 
-            SignInManager.SignIn(user, false, false);
+            //SignInManager.SignIn(user, false, false);
+            ClaimsIdentity oAuthIdentity = await UserManager.CreateIdentityAsync(user, OAuthDefaults.AuthenticationType);
+            ClaimsIdentity cookiesIdentity = await UserManager.CreateIdentityAsync(user, CookieAuthenticationDefaults.AuthenticationType);
+            AuthenticationProperties properties = ApplicationOAuthProvider.CreateProperties(user.UserName);
+            Authentication.SignIn(properties, oAuthIdentity, cookiesIdentity);
+
             return Ok();
         }
 
@@ -509,7 +556,7 @@ namespace ToDoApplication.Controllers
             result = await UserManager.AddLoginAsync(user.Id, info.Login);
             if (!result.Succeeded)
             {
-                return GetErrorResult(result); 
+                return GetErrorResult(result);
             }
             return Ok();
         }

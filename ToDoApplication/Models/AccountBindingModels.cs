@@ -1,6 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
-using Newtonsoft.Json;
 
 namespace ToDoApplication.Models
 {
@@ -91,5 +90,12 @@ namespace ToDoApplication.Models
         [DataType(DataType.Password)]
         [Required]
         public string Password { get; set; }
+    }
+
+    public class ResetPasswordBindingModel
+    {
+        [Required]
+        [Display(Name = "Email")]
+        public string Email { get; set; }
     }
 }

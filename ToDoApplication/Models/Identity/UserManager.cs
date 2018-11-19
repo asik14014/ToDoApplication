@@ -1,15 +1,13 @@
-﻿using System;
-using Microsoft.AspNet.Identity;
-using TodoData.Models.User;
+﻿using Microsoft.AspNet.Identity;
 
 namespace ToDoApplication.Models.Identity
 {
-    public class UserManager : UserManager<User, long>
+    public class UserManager : UserManager<TodoData.Models.User.User, long>
     {
-        public UserManager(IUserStore<User, long> store)
+        public UserManager(IUserStore<TodoData.Models.User.User, long> store)
             : base(store)
         {
-            UserValidator = new UserValidator<User, long>(this) { AllowOnlyAlphanumericUserNames = false };
+            UserValidator = new UserValidator<TodoData.Models.User.User, long>(this) { AllowOnlyAlphanumericUserNames = false };
             PasswordValidator = new PasswordValidator();
         }
     }

@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.EntityFramework;
+﻿using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
 using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.Google;
 using Microsoft.Owin.Security.OAuth;
 using Owin;
-using ToDoApplication.Providers;
-using ToDoApplication.Models;
-using TodoData;
+using System;
 using ToDoApplication.Models.Identity;
-using Microsoft.AspNet.Identity.Owin;
+using ToDoApplication.Providers;
+using TodoData;
 
 namespace ToDoApplication
 {
