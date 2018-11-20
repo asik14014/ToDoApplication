@@ -307,6 +307,7 @@
     <Compile Include="Models\Request\GroupRequest.cs" />
     <Compile Include="Models\Request\TaskRequest.cs" />
     <Compile Include="Models\Response.cs" />
+    <Compile Include="Models\SimpleUserModel.cs" />
     <Compile Include="Models\TaskModel.cs" />
     <Compile Include="Models\InfoListModel.cs" />
     <Compile Include="Models\UserModel.cs" />
