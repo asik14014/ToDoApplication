@@ -1,4 +1,5 @@
 ﻿using System;
+using ToDoApplication.Models;
 using TodoData.Dao;
 using TodoData.Models.User;
 
@@ -49,9 +50,13 @@ namespace ToDoApplication.Code
             return userDaoManager.FindUser(email);
         }
 
-        public static User Update(User user)
+        public static UserModel Update(UserModel user)
         {
-            return userDaoManager.SaveOrUpdate(user);
+            var temp = userDaoManager.GetById(user.id);
+            temp.UserName = user.email;
+            var result = userDaoManager.SaveOrUpdate(temp);
+
+            return user;
         }
     }
 }

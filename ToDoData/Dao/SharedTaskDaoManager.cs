@@ -1,7 +1,6 @@
 ﻿using NHibernate;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using TodoData.Models.Shared;
 
 namespace TodoData.Dao
@@ -18,6 +17,26 @@ namespace TodoData.Dao
                     {
                         return session.QueryOver<SharedTasks>()
                             .Where(st => st.UserId == userId && st.IsActive)
+                            .List();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IList<SharedTasks> GetAllByTaskId(long taskId)
+        {
+            try
+            {
+                using (var session = NHibertnateSession.OpenSession())
+                {
+                    using (ITransaction transaction = session.BeginTransaction())
+                    {
+                        return session.QueryOver<SharedTasks>()
+                            .Where(st => st.TaskId == taskId && st.IsActive)
                             .List();
                     }
                 }

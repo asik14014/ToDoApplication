@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace TodoData.Models.Task
 {
@@ -12,10 +10,16 @@ namespace TodoData.Models.Task
 
         public virtual long UserId { get; set; }
 
+        public virtual string Name { get; set; }
+
+        public virtual string Description { get; set; }
+
         public virtual DateTime CreationDate { get; set; }
 
         public virtual int Status { get; set; }
 
         public virtual DateTime LastUpdate { get; set; }
+
+        public virtual DateTime? EndDate { get; set; }
     }
 }

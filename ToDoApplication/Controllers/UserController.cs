@@ -82,7 +82,7 @@ namespace ToDoApplication.Controllers
         }
 
         [System.Web.Mvc.HttpPut]
-        public object Update(User user)
+        public object Update(UserModel user)
         {
             logger.Log(LogLevel.Debug, $"UserController.Update({Json(user)})");
             try

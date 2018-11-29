@@ -154,11 +154,11 @@ namespace ToDoApplication.Controllers
 
             try
             {
-                var user = UserManager2.FindUserInfo(model.Email);
+                var user = UserManager2.FindUserInfo(model.email);
                 if (user == null) return BadRequest("email not found");
 
                 var newPassword = NameGenerator.RandomString(7);
-                var emailResult = EmailManager.SendNewPassword(model.Email, newPassword);
+                var emailResult = EmailManager.SendNewPassword(model.email, newPassword);
 
                 if (emailResult)
                 {
@@ -191,7 +191,7 @@ namespace ToDoApplication.Controllers
                 return BadRequest(ModelState);
             }
 
-            IdentityResult result = await UserManager.AddPasswordAsync(Convert.ToInt64(User.Identity.GetUserId()), model.NewPassword);
+            IdentityResult result = await UserManager.AddPasswordAsync(Convert.ToInt64(User.Identity.GetUserId()), model.password);
 
             if (!result.Succeeded)
             {
@@ -455,10 +455,10 @@ namespace ToDoApplication.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = SignInManager.PasswordSignIn(model.UserName, model.Password, false, false);
+                var result = SignInManager.PasswordSignIn(model.email, model.password, false, false);
                 if (result == SignInStatus.Success)
                 {
-                    var user = UserManager2.FindUser(model.UserName, model.Password);
+                    var user = UserManager2.FindUser(model.email, model.password);
                     ClaimsIdentity oAuthIdentity = await UserManager.CreateIdentityAsync(user, OAuthDefaults.AuthenticationType);
                     ClaimsIdentity cookiesIdentity = await UserManager.CreateIdentityAsync(user, CookieAuthenticationDefaults.AuthenticationType);
                     AuthenticationProperties properties = ApplicationOAuthProvider.CreateProperties(user.UserName);
