@@ -21,5 +21,13 @@ namespace TodoData.Models.Task
         public virtual DateTime LastUpdate { get; set; }
 
         public virtual DateTime? EndDate { get; set; }
+
+        public virtual string RepeatType { get; set; }
+
+        public virtual long RepeatTime { get; set; }
+
+        public virtual long Remind { get; set; }
+
+        public virtual long Deadline { get; set; }
     }
 }

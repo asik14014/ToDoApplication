@@ -1,4 +1,6 @@
 ﻿
+using System.Collections.Generic;
+
 namespace ToDoApplication.Models
 {
     public class UserModel
@@ -9,6 +11,6 @@ namespace ToDoApplication.Models
         public string avatar { get; set; }
         public bool push { get; set; }
         //public string username { get; set; }
-        public InfoListModel lists { get; set; }
+        public List<InfoListModel> lists { get; set; }
     }
 }

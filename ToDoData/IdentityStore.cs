@@ -49,14 +49,21 @@ namespace ToDoData
 
         public Task UpdateAsync(User user)
         {
-            return Task.Run(() => session.SaveOrUpdate(user));
+            return Task.Run(() => 
+            {
+                session.Update(user);
+            });
         }
         #endregion
 
         #region IUserPasswordStore<User, long>
         public Task SetPasswordHashAsync(User user, string passwordHash)
         {
-            return Task.Run(() => user.PasswordHash = passwordHash);
+            return Task.Run(() => 
+            {
+                user.PasswordHash = passwordHash;
+                session.Update(user);
+            });
         }
 
         public Task<string> GetPasswordHashAsync(User user)
@@ -68,6 +75,7 @@ namespace ToDoData
         {
             return Task.FromResult(true);
         }
+        
         #endregion
 
         #region IUserLockoutStore<User, long>

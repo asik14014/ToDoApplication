@@ -6,5 +6,13 @@
     <property name="CreationDate" column="dtCreation" type="DateTime" />
     <property name="Status" column="intStatus" type="Int32" />
     <property name="LastUpdate" column="dtLastUpdate" type="DateTime" />
+    <property name="EndDate" column="dtEndDate" type="DateTime" />
+
+    <property name="Name" column="vchName" type="string" />
+    <property name="Description" column="vchDescription" type="string" />
+    <property name="RepeatType" column="vchRepeattype" type="string" />
+    <property name="RepeatTime" column="bintRepeatTime" type="Int64" />
+    <property name="Remind" column="bintRemind" type="Int64" />
+    <property name="Deadline" column="bintDeadline" type="Int64" />
   </class>
 </hibernate-mapping>

@@ -53,11 +53,11 @@ namespace ToDoApplication.Code
         {
             var entity = new Group()
             {
-                UserId = group.UserId,
-                GroupType = group.GroupType,
-                Name = group.Name,
-                Description = group.Description,
-                Order = group.Order,
+                UserId = group.userId,
+                GroupType = group.groupType,
+                Name = group.name,
+                Description = group.description,
+                Order = group.order,
                 CreationDate = DateTime.Now,
                 LastUpdate = DateTime.Now,
                 IsActive = true
@@ -69,12 +69,12 @@ namespace ToDoApplication.Code
         {
             var entity = new Group()
             {
-                Id = group.Id,
-                UserId = group.UserId,
-                GroupType = group.GroupType,
-                Name = group.Name,
-                Description = group.Description,
-                Order = group.Order,
+                Id = group.id,
+                UserId = group.userId,
+                GroupType = group.groupType,
+                Name = group.name,
+                Description = group.description,
+                Order = group.order,
                 CreationDate = DateTime.Now,
                 LastUpdate = DateTime.Now,
                 IsActive = true

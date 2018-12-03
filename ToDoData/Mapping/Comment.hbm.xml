@@ -1,0 +1,9 @@
+﻿<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2" assembly="TodoData" namespace="TodoData.Models.Task" >
+  <class name="Comment" table="Comments" >
+    <id name="Id" column="bintId" type="Int64" generator="native" />
+    <property name="UserId" column="bintUserId" type="Int64" />
+    <property name="TaskId" column="bintTaskId" type="Int64" />
+    <property name="Text" column="vchText" type="string" />
+    <property name="LastUpdate" column="dtLastUpdate" type="DateTime" />
+  </class>
+</hibernate-mapping>

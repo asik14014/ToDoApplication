@@ -2,13 +2,19 @@
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.Cookies;
+using Microsoft.Owin.Security.DataProtection;
 using Microsoft.Owin.Security.OAuth;
 using NLog;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Net;
 using System.Net.Http;
+using System.Net.Http.Formatting;
+using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
@@ -61,6 +67,94 @@ namespace ToDoApplication.Controllers
 
         public ISecureDataFormat<AuthenticationTicket> AccessTokenFormat { get; private set; }
 
+        // POST api/Account/Login
+        [HttpPost]
+        [OverrideAuthentication]
+        [HostAuthentication(DefaultAuthenticationTypes.ExternalBearer)]
+        [AllowAnonymous]
+        [Route("Login")]
+        public async Task<object> Login(LoginBindingModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = SignInManager.PasswordSignIn(model.email, model.password, false, false);
+                if (result == SignInStatus.Success)
+                {
+                    var user = UserManager2.FindUser(model.email);
+                    var usermodel = UserManager2.GetUserModel(user.Id);
+
+                    ClaimsIdentity oAuthIdentity = await UserManager.CreateIdentityAsync(user, OAuthDefaults.AuthenticationType);
+                    ClaimsIdentity cookiesIdentity = await UserManager.CreateIdentityAsync(user, CookieAuthenticationDefaults.AuthenticationType);
+                    AuthenticationProperties properties = ApplicationOAuthProvider.CreateProperties(user.UserName);
+                    Authentication.SignIn(properties, oAuthIdentity, cookiesIdentity);
+                    var token = GetToken(model.email, model.password);
+
+                    return new
+                    {
+                        token = token,
+                        user = usermodel
+                    };
+                }
+                else
+                {
+                    ModelState.AddModelError("", "The user name or password provided is incorrect.");
+                }
+            }
+
+            return BadRequest(ModelState);
+        }
+
+        // POST api/Account/Register
+        [HttpPost]
+        [AllowAnonymous]
+        [Route("Register")]
+        public async Task<object> Register(RegisterBindingModel model)
+        {
+            logger.Log(LogLevel.Info, $"Register({model.email})");
+            if (!ModelState.IsValid)
+            {
+                logger.Log(LogLevel.Error, $"Register({model.email}). Error: model state is not invalid");
+                return BadRequest(ModelState);
+            }
+
+            //var user = new ApplicationUser() { UserName = model.Email, Email = model.Email };
+            var userInfo = UserManager2.CreateUserInfo("", "", "", "", "");
+
+            var user = new User()
+            {
+                UserName = model.email,
+                PasswordHash = model.password,
+                IsActive = true,
+                UserInfoId = userInfo.Id,
+                UserType = (int)UserTypeEnum.Client,
+                AccountPlanId = (int)AccountPlanEnum.Start,
+                Registration = DateTime.Now,
+                LastUpdate = DateTime.Now
+            };
+
+            IdentityResult result = await UserManager.CreateAsync(user, model.password);
+
+            if (!result.Succeeded)
+            {
+                return GetErrorResult(result);
+            }
+            user = UserManager2.Create(user);
+            //SignInManager.SignIn(user, false, false);
+            ClaimsIdentity oAuthIdentity = await UserManager.CreateIdentityAsync(user, OAuthDefaults.AuthenticationType);
+            ClaimsIdentity cookiesIdentity = await UserManager.CreateIdentityAsync(user, CookieAuthenticationDefaults.AuthenticationType);
+            AuthenticationProperties properties = ApplicationOAuthProvider.CreateProperties(user.UserName);
+            Authentication.SignIn(properties, oAuthIdentity, cookiesIdentity);
+
+            var token = GetToken(model.email, model.password);
+            var usermodel = UserManager2.GetUserModel(user.UserName);
+
+            return new
+            {
+                token = token,
+                user = usermodel
+            };
+        }
+
         // GET api/Account/UserInfo
         [HostAuthentication(DefaultAuthenticationTypes.ExternalBearer)]
         [Route("UserInfo")]
@@ -85,48 +179,6 @@ namespace ToDoApplication.Controllers
             return Ok();
         }
 
-        // GET api/Account/ManageInfo?returnUrl=%2F&generateState=true
-        //[Route("ManageInfo")]
-        //public async Task<ManageInfoViewModel> GetManageInfo(string returnUrl, bool generateState = false)
-        //{
-        //    var user = await UserManager.FindByIdAsync(Convert.ToInt64(User.Identity.GetUserId()));
-
-        //    if (user == null)
-        //    {
-        //        return null;
-        //    }
-
-        //    List<UserLoginInfoViewModel> logins = new List<UserLoginInfoViewModel>();
-
-        //    foreach (IdentityUserLogin linkedAccount in user.Logins)
-        //    {
-        //        logins.Add(new UserLoginInfoViewModel
-        //        {
-        //            LoginProvider = linkedAccount.LoginProvider,
-        //            ProviderKey = linkedAccount.ProviderKey
-        //        });
-        //    }
-
-        //    if (user.PasswordHash != null)
-        //    {
-        //        logins.Add(new UserLoginInfoViewModel
-        //        {
-        //            LoginProvider = LocalLoginProvider,
-        //            ProviderKey = user.UserName,
-        //        });
-        //    }
-
-        //    return new ManageInfoViewModel
-        //    {
-        //        LocalLoginProvider = LocalLoginProvider,
-        //        Email = user.UserName,
-        //        Logins = logins,
-        //        ExternalLoginProviders = GetExternalLogins(returnUrl, generateState)
-        //    };
-        //}
-
-        // POST api/Account/ChangePassword
-
         [Route("ChangePassword")]
         public async Task<IHttpActionResult> ChangePassword(ChangePasswordBindingModel model)
         {
@@ -135,13 +187,17 @@ namespace ToDoApplication.Controllers
                 return BadRequest(ModelState);
             }
 
-            IdentityResult result = await UserManager.ChangePasswordAsync(Convert.ToInt64(User.Identity.GetUserId()), model.OldPassword,
-                model.NewPassword);
+            IdentityResult result = await UserManager.ChangePasswordAsync(User.Identity.GetUserId<long>(), 
+                model.oldpassword,
+                model.newpassword);
 
             if (!result.Succeeded)
             {
                 return GetErrorResult(result);
             }
+
+            var user = await UserManager.FindByIdAsync(User.Identity.GetUserId<int>());
+            user = UserManager2.Update(user);
 
             return Ok();
         }
@@ -154,7 +210,7 @@ namespace ToDoApplication.Controllers
 
             try
             {
-                var user = UserManager2.FindUserInfo(model.email);
+                var user = UserManager2.FindUser(model.email);
                 if (user == null) return BadRequest("email not found");
 
                 var newPassword = NameGenerator.RandomString(7);
@@ -162,13 +218,22 @@ namespace ToDoApplication.Controllers
 
                 if (emailResult)
                 {
-                    //update password in db
-                    IdentityResult result = await UserManager.AddPasswordAsync(user.Id, newPassword);
+                    //IdentityResult result = await .SetPasswordHashAsync(user, newPassword);
+
+                    var provider = new DpapiDataProtectionProvider("YourAppName");
+                    UserManager.UserTokenProvider = new DataProtectorTokenProvider<User, long>(provider.Create("ASP.NET Identity")) 
+                        as IUserTokenProvider<User, long>;
+
+                    var resetToken = UserManager.GeneratePasswordResetToken(user.Id);
+                    IdentityResult result = UserManager.ResetPassword(user.Id, resetToken, newPassword);
 
                     if (!result.Succeeded)
                     {
                         return GetErrorResult(result);
                     }
+
+                    user = await UserManager.FindByIdAsync(User.Identity.GetUserId<int>());
+                    user = UserManager2.Update(user);
 
                     return Ok();
                 }
@@ -197,6 +262,131 @@ namespace ToDoApplication.Controllers
             {
                 return GetErrorResult(result);
             }
+
+            return Ok();
+        }
+
+        [Route("SetEmail")]
+        public async Task<IHttpActionResult> SetNewEmail(SetEmailBindingModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            /*
+            IdentityResult result = await UserManager.ChangePasswordAsync(User.Identity.GetUserId<long>(),
+                model.oldpassword,
+                model.newpassword);
+
+            if (!result.Succeeded)
+            {
+                return GetErrorResult(result);
+            }
+
+            var user = await UserManager.FindByIdAsync(User.Identity.GetUserId<int>());
+            user = UserManager2.Update(user);
+            */
+
+            return Ok();
+        }
+
+        [Route("UpdateImage")]
+        public async Task<System.Web.Http.IHttpActionResult> UpdateAvatar()
+        {
+            if (!Request.Content.IsMimeMultipartContent())
+                throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
+
+            var user = UserManager2.FindUser(User.Identity.Name);
+            var provider = new MultipartMemoryStreamProvider();
+            await Request.Content.ReadAsMultipartAsync(provider);
+
+            var fileManager = new AzureFileManager();
+            foreach (var file in provider.Contents)
+            {
+                var filename = file.Headers.ContentDisposition.FileName.Trim('\"');
+                var buffer = await file.ReadAsByteArrayAsync();
+                //Do whatever you want with filename and its binary data.
+
+                var result = fileManager.UploadFileAsync(buffer, $"{user.Id}.png");//pass file stream
+
+                if (string.IsNullOrEmpty(result)) return BadRequest(result);
+
+
+                var info = UserManager2.FindUserInfo(user.UserInfoId);
+                info.PhotoUrl = result;
+                UserManager2.UpdateInfo(info);
+            }
+
+            return Ok();
+        }
+
+        [Route("SetNotification")]
+        public async Task<IHttpActionResult> SetNotification(SetPushBindingModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var user = UserManager2.FindUser(User.Identity.Name);
+            var userInfo = UserManager2.FindUserInfo(user.UserInfoId);
+            userInfo.Notification = model.turnOn;
+            UserManager2.UpdateInfo(userInfo);
+
+            return Ok();
+        }
+
+        [Route("SetPushNotification")]
+        public async Task<IHttpActionResult> SetPushNotification(SetPushBindingModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var user = UserManager2.FindUser(User.Identity.Name);
+            var userInfo = UserManager2.FindUserInfo(user.UserInfoId);
+            userInfo.Push = model.turnOn;
+            UserManager2.UpdateInfo(userInfo);
+
+            return Ok();
+        }
+
+        [Route("FindUser")]
+        public async Task<object> FindUser(FindUserBindingModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var user = UserManager2.FindUser(User.Identity.Name);
+            var info = UserManager2.FindUserInfo(user.UserInfoId);
+
+            var result = new SimpleUserModel()
+            {
+                id = user.Id,
+                email = user.UserName,
+                username = info.Name,
+                avatar = info.PhotoUrl
+            };
+
+            return result;
+        }
+
+        [Route("SetFavoriteNotification")]
+        public async Task<IHttpActionResult> SetFavoriteNotification(SetPushBindingModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var user = UserManager2.FindUser(User.Identity.Name);
+            var userInfo = UserManager2.FindUserInfo(user.UserInfoId);
+            userInfo.FavoritePushNotification = model.turnOn;
+            UserManager2.UpdateInfo(userInfo);
 
             return Ok();
         }
@@ -445,79 +635,6 @@ namespace ToDoApplication.Controllers
             return logins;
         }
 
-        // POST api/Account/Login
-        [HttpPost]
-        [OverrideAuthentication]
-        [HostAuthentication(DefaultAuthenticationTypes.ExternalBearer)]
-        [AllowAnonymous]
-        [Route("Login")]
-        public async Task<IHttpActionResult> Login(LoginBindingModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                var result = SignInManager.PasswordSignIn(model.email, model.password, false, false);
-                if (result == SignInStatus.Success)
-                {
-                    var user = UserManager2.FindUser(model.email, model.password);
-                    ClaimsIdentity oAuthIdentity = await UserManager.CreateIdentityAsync(user, OAuthDefaults.AuthenticationType);
-                    ClaimsIdentity cookiesIdentity = await UserManager.CreateIdentityAsync(user, CookieAuthenticationDefaults.AuthenticationType);
-                    AuthenticationProperties properties = ApplicationOAuthProvider.CreateProperties(user.UserName);
-                    Authentication.SignIn(properties, oAuthIdentity, cookiesIdentity);
-                    return Ok();
-                }
-                else
-                {
-                    ModelState.AddModelError("", "The user name or password provided is incorrect.");
-                }
-            }
-
-            return BadRequest(ModelState);
-        }
-
-        // POST api/Account/Register
-        [HttpPost]
-        [AllowAnonymous]
-        [Route("Register")]
-        public async Task<IHttpActionResult> Register(RegisterBindingModel model)
-        {
-            logger.Log(LogLevel.Info, $"Register({model.Email})");
-            if (!ModelState.IsValid)
-            {
-                logger.Log(LogLevel.Error, $"Register({model.Email}). Error: model state is not invalid");
-                return BadRequest(ModelState);
-            }
-
-            //var user = new ApplicationUser() { UserName = model.Email, Email = model.Email };
-            var userInfo = UserManager2.CreateUserInfo("", "", "", "", "");
-
-            var user = new User()
-            {
-                UserName = model.Email,
-                PasswordHash = model.Password,
-                IsActive = true,
-                UserInfoId = userInfo.Id,
-                UserType = (int)UserTypeEnum.Client,
-                AccountPlanId = (int)AccountPlanEnum.Start,
-                Registration = DateTime.Now,
-                LastUpdate = DateTime.Now
-            };
-
-            IdentityResult result = await UserManager.CreateAsync(user, model.Password);
-
-            if (!result.Succeeded)
-            {
-                return GetErrorResult(result);
-            }
-
-            //SignInManager.SignIn(user, false, false);
-            ClaimsIdentity oAuthIdentity = await UserManager.CreateIdentityAsync(user, OAuthDefaults.AuthenticationType);
-            ClaimsIdentity cookiesIdentity = await UserManager.CreateIdentityAsync(user, CookieAuthenticationDefaults.AuthenticationType);
-            AuthenticationProperties properties = ApplicationOAuthProvider.CreateProperties(user.UserName);
-            Authentication.SignIn(properties, oAuthIdentity, cookiesIdentity);
-
-            return Ok();
-        }
-
         // POST api/Account/RegisterExternal
         [OverrideAuthentication]
         [HostAuthentication(DefaultAuthenticationTypes.ExternalBearer)]
@@ -571,6 +688,70 @@ namespace ToDoApplication.Controllers
 
             base.Dispose(disposing);
         }
+
+        private TokenModel GetToken(string email, string password)
+        {
+            var client = new HttpClient();
+            var authorizationHeader = Convert.ToBase64String(Encoding.UTF8.GetBytes("xyz:secretKey"));
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", authorizationHeader);
+
+            var form = new Dictionary<string, string>
+               {
+                   {"grant_type", "password"},
+                   {"username", email},
+                   {"password", password}
+               };
+
+            var url = ConfigurationManager.AppSettings["tokenUrl"];
+            var tokenResponse = client.PostAsync(url, new FormUrlEncodedContent(form)).Result;
+            var token = tokenResponse.Content.ReadAsAsync<TokenModel>(new[] { new JsonMediaTypeFormatter() }).Result;
+
+            return token;
+        }
+
+        #region OBSOLETE
+        // GET api/Account/ManageInfo?returnUrl=%2F&generateState=true
+        //[Route("ManageInfo")]
+        //public async Task<ManageInfoViewModel> GetManageInfo(string returnUrl, bool generateState = false)
+        //{
+        //    var user = await UserManager.FindByIdAsync(Convert.ToInt64(User.Identity.GetUserId()));
+
+        //    if (user == null)
+        //    {
+        //        return null;
+        //    }
+
+        //    List<UserLoginInfoViewModel> logins = new List<UserLoginInfoViewModel>();
+
+        //    foreach (IdentityUserLogin linkedAccount in user.Logins)
+        //    {
+        //        logins.Add(new UserLoginInfoViewModel
+        //        {
+        //            LoginProvider = linkedAccount.LoginProvider,
+        //            ProviderKey = linkedAccount.ProviderKey
+        //        });
+        //    }
+
+        //    if (user.PasswordHash != null)
+        //    {
+        //        logins.Add(new UserLoginInfoViewModel
+        //        {
+        //            LoginProvider = LocalLoginProvider,
+        //            ProviderKey = user.UserName,
+        //        });
+        //    }
+
+        //    return new ManageInfoViewModel
+        //    {
+        //        LocalLoginProvider = LocalLoginProvider,
+        //        Email = user.UserName,
+        //        Logins = logins,
+        //        ExternalLoginProviders = GetExternalLogins(returnUrl, generateState)
+        //    };
+        //}
+
+        // POST api/Account/ChangePassword
+        #endregion
 
         #region Helpers
 

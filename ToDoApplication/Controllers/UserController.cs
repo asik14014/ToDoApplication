@@ -71,7 +71,7 @@ namespace ToDoApplication.Controllers
             logger.Log(LogLevel.Debug, $"UserController.Find({login})");
             try
             {
-                return UserManager2.FindUserInfo(login);
+                return UserManager2.FindUser(login);
             }
             catch (Exception ex)
             {
@@ -117,9 +117,9 @@ namespace ToDoApplication.Controllers
 
                 var result = fileManager.UploadFileAsync(buffer, $"{user}.png");//pass file stream
 
-                if (!string.IsNullOrEmpty(result.Result))
+                if (!string.IsNullOrEmpty(result))
                 {
-                    return BadRequest(result.Result);
+                    return BadRequest(result);
                 }
             }
 

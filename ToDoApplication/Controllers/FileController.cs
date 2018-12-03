@@ -9,17 +9,30 @@ using TodoData.Models.Attachment;
 using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
+using System.Web;
+using Microsoft.AspNet.Identity;
+using ToDoApplication.Models;
 
 namespace ToDoApplication.Controllers
 {
-    [System.Web.Mvc.RoutePrefix("api/File")]
-    [System.Web.Mvc.AllowAnonymous]
-    //[Authorize]
+    [RoutePrefix("api/File")]
+    [Authorize]
     public class FileController : ApiController
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
-        [System.Web.Mvc.HttpPost]
+        private static byte[] ReadFully(Stream input)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                input.CopyTo(ms);
+                return ms.ToArray();
+            }
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [Route("Upload")]
         public async Task<IHttpActionResult> Upload(long taskId)
         {
             if (!Request.Content.IsMimeMultipartContent())
@@ -35,22 +48,25 @@ namespace ToDoApplication.Controllers
             var fileManager = new AzureFileManager();
             foreach (var file in provider.Contents)
             {
-                var filename = file.Headers.ContentDisposition.FileName.Trim('\"') + DateTime.Now.ToString("HH:mm:SS");
+                //var filename = DateTime.Now.ToString("HHmmSS") + file.Headers.ContentDisposition.FileName.Trim('\"');
+                var filename = "asdsad";
                 var buffer = await file.ReadAsByteArrayAsync();
+                //var filename = model.file.FileName/*file.Headers.ContentDisposition.FileName*/.Trim('\"') + DateTime.Now.ToString("HH:mm:SS");
+                //var buffer = ReadFully(model.file.InputStream);//await file.ReadAsByteArrayAsync();
                 //Do whatever you want with filename and its binary data.
 
                 var result = fileManager.UploadFileAsync(buffer, filename);//pass file stream
 
-                if (!string.IsNullOrEmpty(result.Result))
+                if (string.IsNullOrEmpty(result))
                 {
-                    return BadRequest(result.Result);
+                    return BadRequest(result);
                 }
 
                 //save attachment
                 var attachment = new Attachment()
                 {
                     FileName = filename,
-                    FileUrl = filename,
+                    FileUrl = result,
                     FileType = 0,
                     TaskId = taskId,
                     LastUpdate = DateTime.Now
@@ -61,14 +77,15 @@ namespace ToDoApplication.Controllers
             return Ok();
         }
 
-        [System.Web.Mvc.HttpGet]
+        [HttpGet]
+        [Route("Download")]
         public async Task<IHttpActionResult> Download(long taskId)
         {
             //TODO прописать скачивание файла
             return Ok();
         }
 
-        [System.Web.Mvc.HttpGet]
+        [HttpGet]
         public HttpResponseMessage DownloadFile(int taskId, string filename)
         {
             try

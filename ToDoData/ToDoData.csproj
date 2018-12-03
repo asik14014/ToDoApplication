@@ -117,6 +117,7 @@
     <Compile Include="Dao\AttachmentDaoManager.cs" />
     <Compile Include="Dao\AttachmentTypeDaoManager.cs" />
     <Compile Include="Dao\BaseDaoManager.cs" />
+    <Compile Include="Dao\CommentDaoManager.cs" />
     <Compile Include="Dao\CurrencyDaoManager.cs" />
     <Compile Include="Dao\GroupDaoManager.cs" />
     <Compile Include="Dao\GroupTypeDaoManager.cs" />
@@ -124,6 +125,7 @@
     <Compile Include="Dao\SharedGroupDaoManager.cs" />
     <Compile Include="Dao\SharedTaskDaoManager.cs" />
     <Compile Include="Dao\ShareTypeDaoManager.cs" />
+    <Compile Include="Dao\SubtaskDaoManager.cs" />
     <Compile Include="Dao\TaskDaoManager.cs" />
     <Compile Include="Dao\TaskStatusDaoManager.cs" />
     <Compile Include="Dao\UserDaoManager.cs" />
@@ -143,6 +145,8 @@
     <Compile Include="Models\Shared\SharedGroups.cs" />
     <Compile Include="Models\Shared\SharedTasks.cs" />
     <Compile Include="Models\Shared\ShareType.cs" />
+    <Compile Include="Models\Task\Comment.cs" />
+    <Compile Include="Models\Task\Subtask.cs" />
     <Compile Include="Models\Task\Task.cs" />
     <Compile Include="Models\Task\TaskStatus.cs" />
     <Compile Include="Models\User\AccountPlan.cs" />
@@ -201,6 +205,16 @@
     <EmbeddedResource Include="Mapping\UserLogin.hbm.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Mapping\Comment.hbm.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Mapping\Subtask.hbm.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

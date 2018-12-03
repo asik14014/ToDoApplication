@@ -26,7 +26,7 @@ namespace ToDoApplication.Code
             container.CreateIfNotExistsAsync();
         }
         
-        public async Task<string> UploadFileAsync(byte[] inputData, string keyName)
+        public string UploadFileAsync(byte[] inputData, string keyName)
         {
             var blob = container.GetBlockBlobReference(keyName);
             //blob.Properties.ContentType = "application/json";
@@ -34,15 +34,15 @@ namespace ToDoApplication.Code
             {
                 using (Stream stream = new MemoryStream(inputData))
                 {
-                    await blob.UploadFromStreamAsync(stream);
+                    blob.UploadFromStreamAsync(stream);
                 }
 
-                return null;
+                return blob.Uri.AbsoluteUri;
             }
             catch (Exception e)
             {
                 logger.Log(NLog.LogLevel.Error, $"Unknown encountered on server. Message:'{e.Message}' when writing an object");
-                return e.ToString();
+                return null;
             }
 
         }

@@ -5,13 +5,13 @@ using ToDoApplication.Models;
 using TodoData.Models.Task;
 using System.Web.Mvc;
 using ToDoApplication.Models.Request;
+using Microsoft.AspNet.Identity;
 
 namespace ToDoApplication.Controllers
 {
     //[RoutePrefix("api/Task")]
     //[RoutePrefix("api")]
     //[RoutePrefix("Task")]
-    //[AllowAnonymous]
     [Authorize]
     public class TaskController : Controller
     {
@@ -44,8 +44,9 @@ namespace ToDoApplication.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public object GetAll(long id)
+        public object GetAll()
         {
+            var id = User.Identity.GetUserId<long>();
             logger.Log(LogLevel.Debug, $"TaskController.GetAll({id})");
 
             try
@@ -65,8 +66,9 @@ namespace ToDoApplication.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public object GetAllShared(long id)
+        public object GetAllShared()
         {
+            var id = User.Identity.GetUserId<long>();
             logger.Log(LogLevel.Debug, $"TaskController.GetAllShared({id})");
 
             try
@@ -119,6 +121,114 @@ namespace ToDoApplication.Controllers
             catch (Exception ex)
             {
                 logger.Log(LogLevel.Error, $"TaskController.Update({task}) - {ex}"); //object to json
+                //изменить http status code
+                return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        /// Добавить подзадачу
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        public object AddSubTask(AddSubtaskRequest request)
+        {
+            logger.Log(LogLevel.Debug, $"TaskController.AddSubTask({request})"); //object to json
+
+            try
+            {
+                var result = TaskManager.AddSubtask(request);
+
+                if (result != null) return new HttpStatusCodeResult(200);
+                return new HttpStatusCodeResult(400);
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogLevel.Error, $"TaskController.AddSubTask({request}) - {ex}"); //object to json
+                //изменить http status code
+                return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public object AddComment(AddCommentRequest request)
+        {
+            logger.Log(LogLevel.Debug, $"TaskController.AddComment({request})"); //object to json
+
+            try
+            {
+                var result = TaskManager.AddComment(request, User.Identity.GetUserId<long>());
+
+                if (result != null) return new HttpStatusCodeResult(200);
+                return new HttpStatusCodeResult(400);
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogLevel.Error, $"TaskController.AddComment({request}) - {ex}"); //object to json
+                //изменить http status code
+                return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public object AddUser(AddUserRequest request)
+        {
+            logger.Log(LogLevel.Debug, $"TaskController.AddUser({request})"); //object to json
+
+            try
+            {
+                var result = TaskManager.AddUser(request);
+
+                if (result != null) return new HttpStatusCodeResult(200);
+                return new HttpStatusCodeResult(400);
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogLevel.Error, $"TaskController.AddUser({request}) - {ex}"); //object to json
+                //изменить http status code
+                return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        /// Добавить подзадачу
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        public object DeleteSubTask(AddSubtaskRequest request)
+        {
+            logger.Log(LogLevel.Debug, $"TaskController.DeleteSubTask({request})"); //object to json
+
+            try
+            {
+                var result = TaskManager.DeleteSubtask(request);
+
+                if (result) return new HttpStatusCodeResult(200);
+                return new HttpStatusCodeResult(400);
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogLevel.Error, $"TaskController.DeleteSubTask({request}) - {ex}"); //object to json
+                //изменить http status code
+                return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public object UpdateRepetiotion(IterationModule request)
+        {
+            logger.Log(LogLevel.Debug, $"TaskController.UpdateRepetiotion({request})"); //object to json
+
+            try
+            {
+                var result = TaskManager.UpdateRepetition(request);
+
+                if (result != null) return new HttpStatusCodeResult(200);
+                return new HttpStatusCodeResult(400);
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogLevel.Error, $"TaskController.UpdateRepetiotion({request}) - {ex}"); //object to json
                 //изменить http status code
                 return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
             }

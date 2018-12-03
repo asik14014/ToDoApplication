@@ -15,5 +15,9 @@ namespace TodoData.Models.User
         public virtual string PhoneNumber { get; set; }
 
         public virtual string RawData { get; set; }
+
+        public virtual bool Notification { get; set; }
+        public virtual bool Push { get; set; }
+        public virtual bool FavoritePushNotification { get; set; }
     }
 }

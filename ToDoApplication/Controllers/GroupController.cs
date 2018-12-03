@@ -5,12 +5,12 @@ using ToDoApplication.Models;
 using TodoData.Models.Group;
 using System.Web.Mvc;
 using ToDoApplication.Models.Request;
+using Microsoft.AspNet.Identity;
 
 namespace ToDoApplication.Controllers
 {
     [RoutePrefix("api/Group")]
-    [AllowAnonymous]
-    //[Authorize]
+    [Authorize]
     public class GroupController : Controller
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
@@ -40,8 +40,9 @@ namespace ToDoApplication.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public object GetAll(long id)
+        public object GetAll()
         {
+            var id = User.Identity.GetUserId<long>();
             logger.Log(LogLevel.Debug, $"GroupController.GetAll({id})");
 
             try
@@ -61,8 +62,9 @@ namespace ToDoApplication.Controllers
         /// </summary>
         /// <returns></returns>
         //[HttpGet]
-        public object GetAllShared(long id)
+        public object GetAllShared()
         {
+            var id = User.Identity.GetUserId<long>();
             logger.Log(LogLevel.Debug, $"TaskController.GetAllShared({id})");
 
             try
@@ -81,13 +83,21 @@ namespace ToDoApplication.Controllers
         /// Создать группу
         /// </summary>
         [HttpPut]
-        public object Create(GroupRequest group)
+        public object Create(ShortGroupRequest group)
         {
             logger.Log(LogLevel.Debug, $"GroupController.Create({group})"); //object to json
 
             try
             {
-                var newGroup = GroupManager.Save(group);
+                var newGroup = GroupManager.Save(new GroupRequest()
+                {
+                    id = 0,
+                    userId = User.Identity.GetUserId<long>(),
+                    groupType = group.groupType,
+                    name = group.name,
+                    description = group.description,
+                    order = group.order
+                });
                 return Json(new Response(0, "Success"), JsonRequestBehavior.AllowGet); //добавить объект в response
             }
             catch (Exception ex)

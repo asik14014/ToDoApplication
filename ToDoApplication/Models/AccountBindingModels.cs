@@ -15,38 +15,38 @@ namespace ToDoApplication.Models
     public class ChangePasswordBindingModel
     {
         [Required]
-        [DataType(DataType.Password)]
-        [Display(Name = "Current password")]
-        public string OldPassword { get; set; }
+        //[DataType(DataType.Password)]
+        [Display(Name = "current password")]
+        public string oldpassword { get; set; }
 
         [Required]
         [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
-        [DataType(DataType.Password)]
-        [Display(Name = "New password")]
-        public string NewPassword { get; set; }
+        //[DataType(DataType.Password)]
+        [Display(Name = "new password")]
+        public string newpassword { get; set; }
 
-        [DataType(DataType.Password)]
+        //[DataType(DataType.Password)]
         [Display(Name = "Confirm new password")]
-        [Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
-        public string ConfirmPassword { get; set; }
+        [Compare("newpassword", ErrorMessage = "The new password and confirmation password do not match.")]
+        public string confirmpassword { get; set; }
     }
 
     public class RegisterBindingModel
     {
         [Required]
-        [Display(Name = "Email")]
-        public string Email { get; set; }
+        [Display(Name = "email")]
+        public string email { get; set; }
 
         [Required]
         [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
-        [DataType(DataType.Password)]
-        [Display(Name = "Password")]
-        public string Password { get; set; }
+        //[DataType(DataType.Password)]
+        [Display(Name = "password")]
+        public string password { get; set; }
 
-        [DataType(DataType.Password)]
-        [Display(Name = "Confirm password")]
-        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
-        public string ConfirmPassword { get; set; }
+        //[DataType(DataType.Password)]
+        [Display(Name = "confirm password")]
+        [Compare("password", ErrorMessage = "The password and confirmation password do not match.")]
+        public string confirmpassword { get; set; }
     }
 
     public class RegisterExternalBindingModel
@@ -71,7 +71,7 @@ namespace ToDoApplication.Models
     {
         [Required]
         [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
-        [DataType(DataType.Password)]
+        //[DataType(DataType.Password)]
         public string password { get; set; }
     }
 
@@ -83,7 +83,6 @@ namespace ToDoApplication.Models
 
     public class SetPushBindingModel
     {
-        [Required]
         public bool turnOn { get; set; }
     }
 
@@ -101,12 +100,18 @@ namespace ToDoApplication.Models
         [Required]
         public string email { get; set; }
 
-        [DataType(DataType.Password)]
+        //[DataType(DataType.Password)]
         [Required]
         public string password { get; set; }
     }
 
     public class ResetPasswordBindingModel
+    {
+        [Required]
+        public string email { get; set; }
+    }
+
+    public class FindUserBindingModel
     {
         [Required]
         public string email { get; set; }

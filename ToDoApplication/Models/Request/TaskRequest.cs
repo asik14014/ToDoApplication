@@ -8,12 +8,24 @@ namespace ToDoApplication.Models.Request
 {
     public class TaskRequest
     {
-        public long Id { get; set; }
+        public long id { get; set; }
 
-        public long GroupId { get; set; }
+        public long groupId { get; set; }
 
-        public long UserId { get; set; }
+        public long userId { get; set; }
 
-        public int Status { get; set; }
+        public int status { get; set; }
+
+        public string name { get; set; }
+
+        public string text { get; set; }
+
+        public long deadline { get; set; }
+
+        public string repeatType { get; set; }
+
+        public long repeatTime { get; set; }
+
+        public long remind { get; set; }
     }
 }

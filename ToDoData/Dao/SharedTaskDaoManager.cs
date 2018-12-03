@@ -36,7 +36,7 @@ namespace TodoData.Dao
                     using (ITransaction transaction = session.BeginTransaction())
                     {
                         return session.QueryOver<SharedTasks>()
-                            .Where(st => st.TaskId == taskId && st.IsActive)
+                            .Where(st => st.TaskId == taskId && st.IsActive == true)
                             .List();
                     }
                 }
