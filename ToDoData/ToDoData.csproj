@@ -146,6 +146,7 @@
     <Compile Include="Models\Shared\SharedTasks.cs" />
     <Compile Include="Models\Shared\ShareType.cs" />
     <Compile Include="Models\Task\Comment.cs" />
+    <Compile Include="Models\Task\Repeater.cs" />
     <Compile Include="Models\Task\Subtask.cs" />
     <Compile Include="Models\Task\Task.cs" />
     <Compile Include="Models\Task\TaskStatus.cs" />

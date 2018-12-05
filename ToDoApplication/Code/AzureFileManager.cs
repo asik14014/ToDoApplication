@@ -11,7 +11,7 @@ namespace ToDoApplication.Code
     public class AzureFileManager
     {
         // Retrieve storage account from connection string.
-        private CloudStorageAccount storageAccount = CloudStorageAccount.Parse("");
+        private CloudStorageAccount storageAccount = CloudStorageAccount.Parse("DefaultEndpointsProtocol=https;AccountName=accountingdiag182;AccountKey=3bGYmnJUiOHYDoyg+FjMKOf6bLeuwVB9Xg98gwL1h4BeJrMg8tKw4Qu2L52rnkfK9HYHKYoF3SfYtZiUtA3rtg==;EndpointSuffix=core.windows.net");
         private CloudBlobClient blobClient;
         private CloudBlobContainer container;
         private static string containerName = "todo";
@@ -26,7 +26,7 @@ namespace ToDoApplication.Code
             container.CreateIfNotExistsAsync();
         }
         
-        public string UploadFileAsync(byte[] inputData, string keyName)
+        public async Task<string> UploadFileAsync(byte[] inputData, string keyName)
         {
             var blob = container.GetBlockBlobReference(keyName);
             //blob.Properties.ContentType = "application/json";
@@ -34,7 +34,7 @@ namespace ToDoApplication.Code
             {
                 using (Stream stream = new MemoryStream(inputData))
                 {
-                    blob.UploadFromStreamAsync(stream);
+                    blob.UploadFromStream(stream);
                 }
 
                 return blob.Uri.AbsoluteUri;
@@ -42,7 +42,7 @@ namespace ToDoApplication.Code
             catch (Exception e)
             {
                 logger.Log(NLog.LogLevel.Error, $"Unknown encountered on server. Message:'{e.Message}' when writing an object");
-                return null;
+                return e.ToString();
             }
 
         }

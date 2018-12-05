@@ -117,9 +117,9 @@ namespace ToDoApplication.Controllers
 
                 var result = fileManager.UploadFileAsync(buffer, $"{user}.png");//pass file stream
 
-                if (!string.IsNullOrEmpty(result))
+                if (!string.IsNullOrEmpty(result.Result))
                 {
-                    return BadRequest(result);
+                    return BadRequest(result.Result);
                 }
             }
 

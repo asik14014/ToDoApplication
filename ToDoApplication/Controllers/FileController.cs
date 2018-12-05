@@ -48,8 +48,8 @@ namespace ToDoApplication.Controllers
             var fileManager = new AzureFileManager();
             foreach (var file in provider.Contents)
             {
-                //var filename = DateTime.Now.ToString("HHmmSS") + file.Headers.ContentDisposition.FileName.Trim('\"');
-                var filename = "asdsad";
+                var filename = DateTime.Now.ToString("HHmmSS") + file.Headers.ContentDisposition.FileName.Trim('\"');
+                //var filename = "asdsad";
                 var buffer = await file.ReadAsByteArrayAsync();
                 //var filename = model.file.FileName/*file.Headers.ContentDisposition.FileName*/.Trim('\"') + DateTime.Now.ToString("HH:mm:SS");
                 //var buffer = ReadFully(model.file.InputStream);//await file.ReadAsByteArrayAsync();
@@ -57,16 +57,16 @@ namespace ToDoApplication.Controllers
 
                 var result = fileManager.UploadFileAsync(buffer, filename);//pass file stream
 
-                if (string.IsNullOrEmpty(result))
+                if (string.IsNullOrEmpty(result.Result))
                 {
-                    return BadRequest(result);
+                    return BadRequest(result.Result);
                 }
 
                 //save attachment
                 var attachment = new Attachment()
                 {
                     FileName = filename,
-                    FileUrl = result,
+                    FileUrl = result.Result,
                     FileType = 0,
                     TaskId = taskId,
                     LastUpdate = DateTime.Now

@@ -6,7 +6,7 @@ namespace TodoData.Models.Task
     {
         public virtual long Id { get; set; }
 
-        public virtual long GroupId { get; set; }
+        public virtual long? GroupId { get; set; }
 
         public virtual long UserId { get; set; }
 

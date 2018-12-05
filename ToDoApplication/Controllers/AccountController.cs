@@ -26,6 +26,7 @@ using ToDoApplication.Providers;
 using ToDoApplication.Results;
 using TodoData.Models.User;
 using ToDoData.Enum;
+using System.Linq;
 
 namespace ToDoApplication.Controllers
 {
@@ -108,6 +109,114 @@ namespace ToDoApplication.Controllers
         [HttpPost]
         [AllowAnonymous]
         [Route("Register")]
+        public async Task<object> Register()
+        {
+            if (!Request.Content.IsMimeMultipartContent())
+                throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
+
+            var provider = new MultipartMemoryStreamProvider();
+            await Request.Content.ReadAsMultipartAsync(provider);
+            byte[] buffer = null;
+            string filename;
+            string email = string.Empty;
+            string username = string.Empty;
+            string password = string.Empty;
+            string confirmpassword = string.Empty;
+
+            var fileManager = new AzureFileManager();
+            foreach (var file in provider.Contents)
+            {
+                if (file.Headers.ContentDisposition.Name.Contains("email"))
+                {
+                    email = await file.ReadAsStringAsync();
+                }
+                else if (file.Headers.ContentDisposition.Name.Contains("username"))
+                {
+                    username = await file.ReadAsStringAsync();
+                }
+                else if (file.Headers.ContentDisposition.Name.Contains("password"))
+                {
+                    password = await file.ReadAsStringAsync();
+                }
+                else if (file.Headers.ContentDisposition.Name.Contains("confirmpassword"))
+                {
+                    confirmpassword = await file.ReadAsStringAsync();
+                }
+                else
+                {
+                    filename = file.Headers.ContentDisposition.FileName.Trim('\"');
+                    buffer = await file.ReadAsByteArrayAsync();
+                }
+            }
+
+            var model = new RegisterBindingModel()
+            {
+                email = email,
+                username = username,
+                password = password,
+                confirmpassword = confirmpassword,
+            };
+
+            logger.Log(LogLevel.Info, $"Register({model.email})");
+            if (!ModelState.IsValid)
+            {
+                logger.Log(LogLevel.Error, $"Register({model.email}). Error: model state is not invalid");
+                return BadRequest(ModelState);
+            }
+
+            //var user = new ApplicationUser() { UserName = model.Email, Email = model.Email };
+            var userInfo = UserManager2.CreateUserInfo("", username, "", "", "");
+
+            var user = new User()
+            {
+                UserName = model.email,
+                PasswordHash = model.password,
+                IsActive = true,
+                UserInfoId = userInfo.Id,
+                UserType = (int)UserTypeEnum.Client,
+                AccountPlanId = (int)AccountPlanEnum.Start,
+                Registration = DateTime.Now,
+                LastUpdate = DateTime.Now
+            };
+
+            IdentityResult result = await UserManager.CreateAsync(user, model.password);
+
+            if (!result.Succeeded)
+            {
+                return GetErrorResult(result);
+            }
+            user = UserManager2.Create(user);
+            //SignInManager.SignIn(user, false, false);
+            ClaimsIdentity oAuthIdentity = await UserManager.CreateIdentityAsync(user, OAuthDefaults.AuthenticationType);
+            ClaimsIdentity cookiesIdentity = await UserManager.CreateIdentityAsync(user, CookieAuthenticationDefaults.AuthenticationType);
+            AuthenticationProperties properties = ApplicationOAuthProvider.CreateProperties(user.UserName);
+            Authentication.SignIn(properties, oAuthIdentity, cookiesIdentity);
+
+            var token = GetToken(model.email, model.password);
+
+            //avatar
+            var uploadResult = fileManager.UploadFileAsync(buffer, $"{user.Id}.png");//pass file stream
+
+            if (string.IsNullOrEmpty(uploadResult.Result)) return BadRequest(uploadResult.Result);
+
+
+            var info = UserManager2.FindUserInfo(user.UserInfoId);
+            info.PhotoUrl = uploadResult.Result;
+            UserManager2.UpdateInfo(info);
+
+            var usermodel = UserManager2.GetUserModel(user.UserName);
+
+            return new
+            {
+                token = token,
+                user = usermodel
+            };
+        }
+
+        /*
+         * [HttpPost]
+        [AllowAnonymous]
+        [Route("Register")]
         public async Task<object> Register(RegisterBindingModel model)
         {
             logger.Log(LogLevel.Info, $"Register({model.email})");
@@ -154,6 +263,7 @@ namespace ToDoApplication.Controllers
                 user = usermodel
             };
         }
+         */
 
         // GET api/Account/UserInfo
         [HostAuthentication(DefaultAuthenticationTypes.ExternalBearer)]
@@ -310,11 +420,11 @@ namespace ToDoApplication.Controllers
 
                 var result = fileManager.UploadFileAsync(buffer, $"{user.Id}.png");//pass file stream
 
-                if (string.IsNullOrEmpty(result)) return BadRequest(result);
+                if (string.IsNullOrEmpty(result.Result)) return BadRequest(result.Result);
 
 
                 var info = UserManager2.FindUserInfo(user.UserInfoId);
-                info.PhotoUrl = result;
+                info.PhotoUrl = result.Result;
                 UserManager2.UpdateInfo(info);
             }
 

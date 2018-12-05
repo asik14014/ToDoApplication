@@ -6,6 +6,7 @@ using TodoData.Models.Task;
 using System.Web.Mvc;
 using ToDoApplication.Models.Request;
 using Microsoft.AspNet.Identity;
+using System.Collections.Generic;
 
 namespace ToDoApplication.Controllers
 {
@@ -161,6 +162,53 @@ namespace ToDoApplication.Controllers
 
                 if (result != null) return new HttpStatusCodeResult(200);
                 return new HttpStatusCodeResult(400);
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogLevel.Error, $"TaskController.AddComment({request}) - {ex}"); //object to json
+                //изменить http status code
+                return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+
+        [HttpPost]
+        public object AddSubTasks(List<AddSubtaskRequest> request)
+        {
+            logger.Log(LogLevel.Debug, $"TaskController.AddSubTask({request})"); //object to json
+
+            try
+            {
+                foreach (var item in request)
+                {
+                    var result = TaskManager.AddSubtask(item);
+                    if (result == null) return new HttpStatusCodeResult(400);
+                }
+
+                return new HttpStatusCodeResult(200);
+                
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogLevel.Error, $"TaskController.AddSubTask({request}) - {ex}"); //object to json
+                //изменить http status code
+                return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public object AddComments(List<AddCommentRequest> request)
+        {
+            logger.Log(LogLevel.Debug, $"TaskController.AddComment({request})"); //object to json
+
+            try
+            {
+                foreach (var item in request)
+                {
+                    var result = TaskManager.AddComment(item, User.Identity.GetUserId<long>());
+                    if (result == null) return new HttpStatusCodeResult(400); 
+                }
+                return new HttpStatusCodeResult(200);
             }
             catch (Exception ex)
             {

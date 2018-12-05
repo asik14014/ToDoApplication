@@ -158,22 +158,22 @@ namespace ToDoApplication.Code
             return taskDaoManager.SaveOrUpdate(entity);
         }
 
-        public static Task Save(TaskRequest task)
+        public static Task Save(TaskRequest task, long userId)
         {
             var entity = new Task()
             {
-                GroupId = task.groupId,
-                UserId = task.userId,
-                Status = task.status,
+                UserId = userId,
+                Status = 1,
                 CreationDate = DateTime.Now,
                 LastUpdate = DateTime.Now,
-                Description = task.text,
-                Name = task.name,
+                Description = task.description,
+                Name = task.title,
                 Deadline = task.deadline,
-                RepeatType = task.repeatType,
-                RepeatTime = task.repeatTime,
+                RepeatType = task.repeater.type,
+                RepeatTime = task.repeater.repeatEvery,
                 Remind = task.remind,
             };
+            if (task.list != null) entity.GroupId = task.list.FirstOrDefault();
             return taskDaoManager.Save(entity);
         }
 
