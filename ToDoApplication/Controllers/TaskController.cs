@@ -94,7 +94,8 @@ namespace ToDoApplication.Controllers
 
             try
             {
-                var newTask = TaskManager.Save(task);
+                var id = User.Identity.GetUserId<long>();
+                var newTask = TaskManager.Save(task, id);
                 return Json(new Response(0, "Success"), JsonRequestBehavior.AllowGet); //добавить объект в response
             }
             catch (Exception ex)
@@ -116,7 +117,8 @@ namespace ToDoApplication.Controllers
 
             try
             {
-                var newGroup = TaskManager.Update(task);
+                var id = User.Identity.GetUserId<long>();
+                var newGroup = TaskManager.Update(task, id);
                 return Json(new Response(0, "Success"), JsonRequestBehavior.AllowGet); //добавить объект в response
             }
             catch (Exception ex)

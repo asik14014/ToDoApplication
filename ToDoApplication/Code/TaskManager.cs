@@ -145,20 +145,22 @@ namespace ToDoApplication.Code
             return result;
         }
 
-        public static Task SaveOrUpdate(TaskRequest task)
+        public static Task SaveOrUpdate(TaskRequest task, long userId)
         {
+            long? groupId = null;
+            if (task.list != null) groupId = task.list.FirstOrDefault();
             var entity = new Task()
             {
-                GroupId = task.groupId,
-                UserId = task.userId,
-                Status = task.status,
+                GroupId = groupId,
+                UserId = userId,
+                Status = 1,
                 CreationDate = DateTime.Now,
                 LastUpdate = DateTime.Now
             };
             return taskDaoManager.SaveOrUpdate(entity);
         }
 
-        public static Task Save(TaskRequest task, long userId)
+        public static TaskRequest Save(TaskRequest task, long userId)
         {
             var entity = new Task()
             {
@@ -174,17 +176,80 @@ namespace ToDoApplication.Code
                 Remind = task.remind,
             };
             if (task.list != null) entity.GroupId = task.list.FirstOrDefault();
-            return taskDaoManager.Save(entity);
+            taskDaoManager.Save(entity);
+
+            #region subtask
+            if (task.subTasks != null && task.subTasks.Any())
+            {
+                foreach (var subtask in task.subTasks)
+                {
+                    subtaskDaoManager.Save(new Subtask()
+                    {
+                        Id = 0,
+                        TaskId = entity.Id,
+                        SubtaskId = Convert.ToInt64(subtask),
+                        Registration = DateTime.Now
+                    });
+                }
+            }
+            #endregion
+
+            #region users
+            if (task.users != null && task.users.Any())
+            {
+                foreach (var user in task.users)
+                {
+                    sharedTaskDaoManager.Save(new SharedTasks()
+                    {
+                        Id = 0,
+                        TaskId = entity.Id,
+                        UserId = userId,
+                        ShareType = 1,
+                        LastUpdate = DateTime.Now,
+                        IsActive = true
+                    });
+                }
+            }
+            #endregion
+
+            #region comments
+            if (task.comments != null && task.comments.Any())
+            {
+                foreach (var comment in task.comments)
+                {
+                    commentDaoManager.Save(new Comment()
+                    {
+                        Id = 0,
+                        UserId = comment.user.id,
+                        TaskId = entity.Id,
+                        Text = comment.text,
+                        LastUpdate = DateTime.Now
+                    });
+                }
+            }
+            #endregion
+
+            #region files
+            foreach (var file in task.files)
+            {
+                
+            }
+            #endregion
+
+            return task;
         }
 
-        public static Task Update(TaskRequest task)
+        public static Task Update(TaskRequest task, long userId)
         {
+            long? groupId = null;
+            if (task.list != null) groupId = task.list.FirstOrDefault();
+
             var entity = new Task()
             {
                 Id = task.id,
-                GroupId = task.groupId,
-                UserId = task.userId,
-                Status = task.status,
+                GroupId = groupId,
+                UserId = userId,
+                Status = 1,
                 CreationDate = DateTime.Now,
                 LastUpdate = DateTime.Now
             };
