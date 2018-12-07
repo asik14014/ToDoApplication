@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Web.Http;
 using ToDoApplication.Models;
@@ -171,8 +172,8 @@ namespace ToDoApplication.Code
                 Description = task.description,
                 Name = task.title,
                 Deadline = task.deadline,
-                RepeatType = task.repeater.type,
-                RepeatTime = task.repeater.repeatEvery,
+                RepeatType = task.repeat.type,
+                RepeatTime = task.repeat.repeatEvery,
                 Remind = task.remind,
             };
             if (task.list != null) entity.GroupId = task.list.FirstOrDefault();
@@ -230,30 +231,147 @@ namespace ToDoApplication.Code
             #endregion
 
             #region files
-            foreach (var file in task.files)
+            if (task.files != null && task.files.Any())
             {
-                
+                var fileManager = new AzureFileManager();
+                foreach (var file in task.files)
+                {
+                    var filename = DateTime.Now.ToString("HHmmSS") + file.FileName.Trim('\"');
+                    var buffer = ReadFully(file.InputStream);
+                    var result = fileManager.UploadFileAsync(buffer, filename);
+
+                    if (string.IsNullOrEmpty(result.Result))
+                    {
+                        continue;
+                    }
+
+                    //save attachment
+                    attachmentDaoManager.Save(new TodoData.Models.Attachment.Attachment()
+                    {
+                        Id = 0,
+                        FileType = 1,
+                        FileName = file.FileName,
+                        FileUrl = result.Result,
+                        TaskId = entity.Id,
+                        LastUpdate = DateTime.Now
+                    });
+                }
             }
             #endregion
+
+            task.id = entity.Id;
 
             return task;
         }
 
-        public static Task Update(TaskRequest task, long userId)
+        public static TaskRequest Update(TaskRequest task, long userId)
         {
-            long? groupId = null;
-            if (task.list != null) groupId = task.list.FirstOrDefault();
-
             var entity = new Task()
             {
                 Id = task.id,
-                GroupId = groupId,
                 UserId = userId,
-                Status = 1,
-                CreationDate = DateTime.Now,
-                LastUpdate = DateTime.Now
+                Description = task.description,
+                Name = task.title,
+                Deadline = task.deadline,
+                RepeatType = task.repeat.type,
+                RepeatTime = task.repeat.repeatEvery,
+                Remind = task.remind,
             };
-            return taskDaoManager.Update(entity);
+            if (task.list != null) entity.GroupId = task.list.FirstOrDefault();
+            taskDaoManager.Update(entity);
+
+            #region subtask
+            if (task.subTasks != null && task.subTasks.Any())
+            {
+                foreach (var subtask in task.subTasks)
+                {
+                    subtaskDaoManager.SaveOrUpdate(new Subtask()
+                    {
+                        Id = 0,
+                        TaskId = entity.Id,
+                        SubtaskId = Convert.ToInt64(subtask),
+                        Registration = DateTime.Now
+                    });
+                }
+            }
+            #endregion
+
+            #region users
+            if (task.users != null && task.users.Any())
+            {
+                foreach (var user in task.users)
+                {
+                    sharedTaskDaoManager.SaveOrUpdate(new SharedTasks()
+                    {
+                        Id = 0,
+                        TaskId = entity.Id,
+                        UserId = userId,
+                        ShareType = 1,
+                        LastUpdate = DateTime.Now,
+                        IsActive = true
+                    });
+                }
+            }
+            #endregion
+
+            #region comments
+            if (task.comments != null && task.comments.Any())
+            {
+                foreach (var comment in task.comments)
+                {
+                    commentDaoManager.SaveOrUpdate(new Comment()
+                    {
+                        Id = 0,
+                        UserId = comment.user.id,
+                        TaskId = entity.Id,
+                        Text = comment.text,
+                        LastUpdate = DateTime.Now
+                    });
+                }
+            }
+            #endregion
+
+            #region files
+            if (task.files != null && task.files.Any())
+            {
+                var fileManager = new AzureFileManager();
+                foreach (var file in task.files)
+                {
+                    var filename = DateTime.Now.ToString("HHmmSS") + file.FileName.Trim('\"');
+                    var buffer = ReadFully(file.InputStream);
+                    var result = fileManager.UploadFileAsync(buffer, filename);
+
+                    if (string.IsNullOrEmpty(result.Result))
+                    {
+                        continue;
+                    }
+
+                    //save attachment
+                    attachmentDaoManager.SaveOrUpdate(new TodoData.Models.Attachment.Attachment()
+                    {
+                        Id = 0,
+                        FileType = 1,
+                        FileName = file.FileName,
+                        FileUrl = result.Result,
+                        TaskId = entity.Id,
+                        LastUpdate = DateTime.Now
+                    });
+                }
+            }
+            #endregion
+
+            task.id = entity.Id;
+
+            return task;
+        }
+
+        private static byte[] ReadFully(Stream input)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                input.CopyTo(ms);
+                return ms.ToArray();
+            }
         }
 
         public static Subtask AddSubtask(AddSubtaskRequest request)
@@ -261,7 +379,8 @@ namespace ToDoApplication.Code
             var temp = subtaskDaoManager.Find(request.taskId, request.subTaskId);
             if (temp != null) return temp;
 
-            var result = subtaskDaoManager.SaveOrUpdate(new Subtask() {
+            var result = subtaskDaoManager.SaveOrUpdate(new Subtask()
+            {
                 Id = 0,
                 TaskId = request.taskId,
                 SubtaskId = request.subTaskId,

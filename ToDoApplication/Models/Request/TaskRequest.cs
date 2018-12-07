@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Web;
 
 namespace ToDoApplication.Models.Request
@@ -17,7 +13,7 @@ namespace ToDoApplication.Models.Request
         public List<HttpPostedFileBase> files { get; set; }
         public List<UserTaskRequest> users { get; set; }
         public List<CommentTaskRequest> comments { get; set; }
-        public Repeater repeater {get; set;}
+        public Repeater repeat { get; set; }
         public long remind { get; set; }
         public List<long> list { get; set; }
     }

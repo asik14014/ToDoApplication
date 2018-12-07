@@ -1,12 +1,11 @@
-﻿using System;
+﻿using Microsoft.AspNet.Identity;
 using NLog;
+using System;
+using System.Collections.Generic;
+using System.Web.Mvc;
 using ToDoApplication.Code;
 using ToDoApplication.Models;
-using TodoData.Models.Task;
-using System.Web.Mvc;
 using ToDoApplication.Models.Request;
-using Microsoft.AspNet.Identity;
-using System.Collections.Generic;
 
 namespace ToDoApplication.Controllers
 {
@@ -17,7 +16,7 @@ namespace ToDoApplication.Controllers
     public class TaskController : Controller
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
-        
+
         /// <summary>
         /// Достать задачу по идентификатору
         /// </summary>
@@ -188,7 +187,7 @@ namespace ToDoApplication.Controllers
                 }
 
                 return new HttpStatusCodeResult(200);
-                
+
             }
             catch (Exception ex)
             {
@@ -208,7 +207,7 @@ namespace ToDoApplication.Controllers
                 foreach (var item in request)
                 {
                     var result = TaskManager.AddComment(item, User.Identity.GetUserId<long>());
-                    if (result == null) return new HttpStatusCodeResult(400); 
+                    if (result == null) return new HttpStatusCodeResult(400);
                 }
                 return new HttpStatusCodeResult(200);
             }
@@ -240,6 +239,28 @@ namespace ToDoApplication.Controllers
             }
         }
 
+        [HttpPost]
+        public object AddUsers(List<AddUserRequest> request)
+        {
+            logger.Log(LogLevel.Debug, $"TaskController.AddUser({request})"); //object to json
+
+            try
+            {
+                foreach (var user in request)
+                {
+                    var result = TaskManager.AddUser(user);
+                    if (result == null) return new HttpStatusCodeResult(400);
+                }
+                return new HttpStatusCodeResult(200);
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogLevel.Error, $"TaskController.AddUser({request}) - {ex}"); //object to json
+                //изменить http status code
+                return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
         /// <summary>
         /// Добавить подзадачу
         /// </summary>
@@ -255,6 +276,34 @@ namespace ToDoApplication.Controllers
 
                 if (result) return new HttpStatusCodeResult(200);
                 return new HttpStatusCodeResult(400);
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogLevel.Error, $"TaskController.DeleteSubTask({request}) - {ex}"); //object to json
+                //изменить http status code
+                return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        /// Добавить подзадачу
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        public object DeleteSubTasks(List<AddSubtaskRequest> request)
+        {
+            logger.Log(LogLevel.Debug, $"TaskController.DeleteSubTask({request})"); //object to json
+
+            try
+            {
+                foreach (var task in request)
+                {
+                    var result = TaskManager.DeleteSubtask(task);
+                    if (!result) return new HttpStatusCodeResult(400);
+                }
+
+                return new HttpStatusCodeResult(200);
+
             }
             catch (Exception ex)
             {
