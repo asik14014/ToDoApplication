@@ -56,5 +56,25 @@ namespace TodoData.Dao
                 throw ex;
             }
         }
+
+        public IList<Task> GetAllByName(long userId, string name)
+        {
+            try
+            {
+                using (var session = NHibertnateSession.OpenSession())
+                {
+                    using (ITransaction transaction = session.BeginTransaction())
+                    {
+                        return session.QueryOver<Task>()
+                            .Where(t => t.UserId == userId && t.Name == name)
+                            .List();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

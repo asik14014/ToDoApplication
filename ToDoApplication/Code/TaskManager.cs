@@ -20,6 +20,7 @@ namespace ToDoApplication.Code
         private static UserDaoManager userDaoManager = new UserDaoManager();
         private static CommentDaoManager commentDaoManager = new CommentDaoManager();
         private static SubtaskDaoManager subtaskDaoManager = new SubtaskDaoManager();
+        private static GroupDaoManager groupDaoManager = new GroupDaoManager();
 
         public static List<TaskModel> GetAllTasks()
         {
@@ -35,6 +36,19 @@ namespace ToDoApplication.Code
         }
 
         public static List<TaskModel> GetAllTasksByUser(long userId)
+        {
+            var result = new List<TaskModel>();
+            var items = taskDaoManager.GetAllByUserId(userId);
+
+            foreach (var item in items)
+            {
+                result.Add(GetTask(item.Id));
+            }
+
+            return result;
+        }
+
+        public static List<TaskModel> GetAllTasksByUser(long userId, DateTime date)
         {
             var result = new List<TaskModel>();
             var items = taskDaoManager.GetAllByUserId(userId);
@@ -455,6 +469,67 @@ namespace ToDoApplication.Code
             task.RepeatType = request.type;
 
             return taskDaoManager.Update(task);
+        }
+
+        public static bool AddFavorite(long taskId, long userId)
+        {
+            var favorite = groupDaoManager.GetByType(userId, 1);
+
+            if (favorite != null && favorite.Any())
+            {
+                var groupId = favorite.First().Id;
+
+                var task = taskDaoManager.GetById(taskId);
+                task.GroupId = groupId;
+
+                taskDaoManager.Update(task);
+
+                return true;
+            }
+
+            return false;
+        }
+
+        public static IList<Task> FindTask(long userId, string name)
+        {
+            return taskDaoManager.GetAllByName(userId, name);
+        }
+
+        private static DateTime getDateTimeFromUnixTimeStamp(long timestamp)
+        {
+            return new DateTime(1970, 1, 1, 0, 0, 0).AddSeconds(timestamp);
+        }
+
+        public static IList<Task> GetAllForMonth(long userId)
+        {
+            var temp = taskDaoManager.GetAllByUserId(userId);
+            if (temp != null && temp.Any())
+            {
+                var today = DateTime.Now;
+                temp = temp.Where(task =>
+                {
+                    var buf = getDateTimeFromUnixTimeStamp(task.Deadline);
+                    if (buf.Year == today.Year && buf.Month == today.Month) return true;
+                    return false;
+                }).ToList();
+            }
+            return temp;
+        }
+
+        public static IList<Task> GetAllForToday(long userId)
+        {
+            var temp = taskDaoManager.GetAllByUserId(userId);
+            if (temp != null && temp.Any())
+            {
+                var today = DateTime.Now;
+                temp = temp.Where(task =>
+                {
+                    var buf = getDateTimeFromUnixTimeStamp(task.Deadline);
+                    if (buf.Year == today.Year && buf.Month == today.Month && buf.Day == today.Day) return true;
+                    return false;
+                }).ToList();
+            }
+            return temp;
         }
     }
 }
