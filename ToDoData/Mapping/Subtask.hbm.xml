@@ -2,7 +2,7 @@
   <class name="Subtask" table="SubTasks" >
     <id name="Id" column="bintId" type="Int64" generator="native" />
     <property name="TaskId" column="bintTaskId" type="Int64" />
-    <property name="SubtaskId" column="bintSubtaskId" type="Int64" />
-    <property name="Registration" column="dtRegistration" type="DateTime" />
+    <property name="Title" column="vchTitle" type="string" />
+    <property name="Status" column="bitStatus" type="Boolean" />
   </class>
 </hibernate-mapping>

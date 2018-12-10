@@ -11,7 +11,7 @@ namespace TodoData.Dao
 {
     public class SubtaskDaoManager: BaseDaoManager<Subtask>
     {
-        public Subtask Find(long taskId, long subtaskId)
+        public Subtask Find(long taskId, string title)
         {
             try
             {
@@ -20,7 +20,7 @@ namespace TodoData.Dao
                     using (ITransaction transaction = session.BeginTransaction())
                     {
                         return session.QueryOver<Subtask>()
-                            .Where(st => st.SubtaskId == subtaskId && st.TaskId == taskId)
+                            .Where(st => st.TaskId == taskId && st.Title == title)
                             .SingleOrDefault();
                     }
                 }

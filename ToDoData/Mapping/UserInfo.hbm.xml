@@ -5,5 +5,8 @@
     <property name="Name" column="vchName" type="string"/>
     <property name="PhoneNumber" column="vchTelNumber" type="string"/>
     <property name="RawData" column="vchRawJson" type="string"/>
+    <property name="Push" column="bitPush" type="Boolean"/>
+    <property name="FavoritePushNotification" column="bitFavorite" type="Boolean"/>
+    <property name="Notification" column="bitNotification" type="Boolean"/>
   </class>
 </hibernate-mapping>

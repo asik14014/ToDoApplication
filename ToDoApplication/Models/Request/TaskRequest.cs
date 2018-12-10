@@ -9,7 +9,7 @@ namespace ToDoApplication.Models.Request
         public string title { get; set; }
         public long deadline { get; set; }
         public string description { get; set; }
-        public List<string> subTasks { get; set; }
+        public List<AddSubtaskRequest> subTasks { get; set; }
         public List<HttpPostedFileBase> files { get; set; }
         public List<UserTaskRequest> users { get; set; }
         public List<CommentTaskRequest> comments { get; set; }

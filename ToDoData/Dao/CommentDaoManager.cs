@@ -11,6 +11,26 @@ namespace TodoData.Dao
 {
     public class CommentDaoManager : BaseDaoManager<Comment>
     {
+        public Subtask Find(long taskId, string title)
+        {
+            try
+            {
+                using (var session = NHibertnateSession.OpenSession())
+                {
+                    using (ITransaction transaction = session.BeginTransaction())
+                    {
+                        return session.QueryOver<Subtask>()
+                            .Where(st => st.TaskId == taskId && st.Title == title)
+                            .SingleOrDefault();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public IList<Comment> GetAllByTaskId(long taskId)
         {
             try

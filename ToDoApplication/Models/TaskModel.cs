@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using ToDoApplication.Models.Request;
 
 namespace ToDoApplication.Models
 {
@@ -12,7 +13,7 @@ namespace ToDoApplication.Models
 
         public string description { get; set; }
 
-        public List<string> subTasks { get; set; }
+        public List<AddSubtaskRequest> subTasks { get; set; }
 
         public List<FileModel> files { get; set; }
 

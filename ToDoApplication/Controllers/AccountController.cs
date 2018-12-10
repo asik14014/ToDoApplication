@@ -312,6 +312,7 @@ namespace ToDoApplication.Controllers
             return Ok();
         }
 
+        [HttpPost]
         [AllowAnonymous]
         [Route("ResetPassword")]
         public async Task<IHttpActionResult> ResetPassword(ResetPasswordBindingModel model)
@@ -330,7 +331,7 @@ namespace ToDoApplication.Controllers
                 {
                     //IdentityResult result = await .SetPasswordHashAsync(user, newPassword);
 
-                    var provider = new DpapiDataProtectionProvider("YourAppName");
+                    var provider = new DpapiDataProtectionProvider("Todo");
                     UserManager.UserTokenProvider = new DataProtectorTokenProvider<User, long>(provider.Create("ASP.NET Identity")) 
                         as IUserTokenProvider<User, long>;
 
@@ -341,8 +342,8 @@ namespace ToDoApplication.Controllers
                     {
                         return GetErrorResult(result);
                     }
-
-                    user = await UserManager.FindByIdAsync(User.Identity.GetUserId<int>());
+                    
+                    user = await UserManager.FindByIdAsync(user.Id);
                     user = UserManager2.Update(user);
 
                     return Ok();

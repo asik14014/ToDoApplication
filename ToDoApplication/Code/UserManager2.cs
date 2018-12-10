@@ -66,7 +66,7 @@ namespace ToDoApplication.Code
                 email = temp.UserName,
                 username = info.Name,
                 avatar = info.PhotoUrl,
-                push = true,
+                push = info.Push,
                 lists = groups != null ? groups.Select(g => new InfoListModel() { id = g.Id, title = g.Name }).ToList() : new List<InfoListModel>() { }
             };
 

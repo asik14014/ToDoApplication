@@ -10,7 +10,7 @@ namespace TodoData.Models.Task
     {
         public virtual long Id { get; set; }
         public virtual long TaskId { get; set; }
-        public virtual long SubtaskId { get; set; }
-        public virtual DateTime Registration { get; set; }
+        public virtual string Title { get; set; }
+        public virtual bool Status { get; set; }
     }
 }

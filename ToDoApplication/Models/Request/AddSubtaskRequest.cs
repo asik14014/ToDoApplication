@@ -7,8 +7,7 @@ namespace ToDoApplication.Models.Request
 {
     public class AddSubtaskRequest
     {
-        public long taskId { get; set; }
-
-        public long subTaskId { get; set; }
+        public string title { get; set; }
+        public bool status { get; set; }
     }
 }

@@ -23,7 +23,7 @@ namespace ToDoApplication.Controllers
         /// <returns></returns>
         //[Authorize]
         [HttpGet]
-        [RequireHttps]
+        //[RequireHttps]
         public object Get(long id)
         {
             logger.Log(LogLevel.Debug, $"TaskController.Get({id})");
@@ -95,7 +95,7 @@ namespace ToDoApplication.Controllers
             {
                 var id = User.Identity.GetUserId<long>();
                 var newTask = TaskManager.Save(task, id);
-                return Json(new Response(0, "Success"), JsonRequestBehavior.AllowGet); //добавить объект в response
+                return Json(newTask, JsonRequestBehavior.AllowGet); //добавить объект в response
             }
             catch (Exception ex)
             {
@@ -139,10 +139,10 @@ namespace ToDoApplication.Controllers
 
             try
             {
-                var result = TaskManager.AddSubtask(request);
+                //var result = TaskManager.AddSubtask(request);
 
-                if (result != null) return new HttpStatusCodeResult(200);
-                return new HttpStatusCodeResult(400);
+                //if (result != null) return new HttpStatusCodeResult(200);
+                return new HttpStatusCodeResult(200);
             }
             catch (Exception ex)
             {
@@ -182,8 +182,8 @@ namespace ToDoApplication.Controllers
             {
                 foreach (var item in request)
                 {
-                    var result = TaskManager.AddSubtask(item);
-                    if (result == null) return new HttpStatusCodeResult(400);
+                    //var result = TaskManager.AddSubtask(item);
+                    //if (result == null) return new HttpStatusCodeResult(400);
                 }
 
                 return new HttpStatusCodeResult(200);
@@ -226,7 +226,7 @@ namespace ToDoApplication.Controllers
 
             try
             {
-                var result = TaskManager.AddUser(request);
+                var result = TaskManager.AddUser(request, User.Identity.GetUserId<long>());
 
                 if (result != null) return new HttpStatusCodeResult(200);
                 return new HttpStatusCodeResult(400);
@@ -248,7 +248,7 @@ namespace ToDoApplication.Controllers
             {
                 foreach (var user in request)
                 {
-                    var result = TaskManager.AddUser(user);
+                    var result = TaskManager.AddUser(user, User.Identity.GetUserId<long>());
                     if (result == null) return new HttpStatusCodeResult(400);
                 }
                 return new HttpStatusCodeResult(200);
@@ -272,10 +272,10 @@ namespace ToDoApplication.Controllers
 
             try
             {
-                var result = TaskManager.DeleteSubtask(request);
+                //var result = TaskManager.DeleteSubtask(request);
 
-                if (result) return new HttpStatusCodeResult(200);
-                return new HttpStatusCodeResult(400);
+                //if (result) return new HttpStatusCodeResult(200);
+                return new HttpStatusCodeResult(200);
             }
             catch (Exception ex)
             {
@@ -298,8 +298,8 @@ namespace ToDoApplication.Controllers
             {
                 foreach (var task in request)
                 {
-                    var result = TaskManager.DeleteSubtask(task);
-                    if (!result) return new HttpStatusCodeResult(400);
+                    //var result = TaskManager.DeleteSubtask(task);
+                    //if (!result) return new HttpStatusCodeResult(400);
                 }
 
                 return new HttpStatusCodeResult(200);
