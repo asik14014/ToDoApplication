@@ -354,5 +354,81 @@ namespace ToDoApplication.Controllers
                 return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
             }
         }
+
+        [HttpPost]
+        public object AddFavorite(long taskId)
+        {
+            logger.Log(LogLevel.Debug, $"TaskController.AddFavorite({taskId})"); //object to json
+
+            try
+            {
+                var result = TaskManager.AddFavorite(taskId, User.Identity.GetUserId<long>());
+
+                if (result) return new HttpStatusCodeResult(200);
+                return new HttpStatusCodeResult(400);
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogLevel.Error, $"TaskController.AddFavorite({taskId}) - {ex}"); //object to json
+                //изменить http status code
+                return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public object FindTask(string name)
+        {
+            logger.Log(LogLevel.Debug, $"TaskController.FindTask({name})"); //object to json
+
+            try
+            {
+                var result = TaskManager.FindTask(User.Identity.GetUserId<long>(), name);
+
+                if (result != null) return new HttpStatusCodeResult(200);
+                return new HttpStatusCodeResult(400);
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogLevel.Error, $"TaskController.FindTask({name}) - {ex}"); //object to json
+                //изменить http status code
+                return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public object GetTaskForMonth()
+        {
+            var id = User.Identity.GetUserId<long>();
+            logger.Log(LogLevel.Debug, $"TaskController.GetTaskForMonth({id})");
+
+            try
+            {
+                return Json(TaskManager.GetAllForMonth(id), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogLevel.Error, $"TaskController.GetTaskForMonth({id}) - {ex}");
+                //изменить http status code
+                return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public object GetTaskForDay()
+        {
+            var id = User.Identity.GetUserId<long>();
+            logger.Log(LogLevel.Debug, $"TaskController.GetTaskForDay({id})");
+
+            try
+            {
+                return Json(TaskManager.GetAllForToday(id), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogLevel.Error, $"TaskController.GetTaskForDay({id}) - {ex}");
+                //изменить http status code
+                return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
     }
 }

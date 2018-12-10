@@ -1,11 +1,10 @@
-﻿using System;
+﻿using Microsoft.AspNet.Identity;
 using NLog;
+using System;
+using System.Web.Mvc;
 using ToDoApplication.Code;
 using ToDoApplication.Models;
-using TodoData.Models.Group;
-using System.Web.Mvc;
 using ToDoApplication.Models.Request;
-using Microsoft.AspNet.Identity;
 
 namespace ToDoApplication.Controllers
 {
