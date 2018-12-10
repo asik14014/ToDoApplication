@@ -430,5 +430,41 @@ namespace ToDoApplication.Controllers
                 return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
             }
         }
+
+        [HttpPost]
+        public object GetTaskForGroup(long groupId)
+        {
+            var id = User.Identity.GetUserId<long>();
+            logger.Log(LogLevel.Debug, $"TaskController.GetTaskForGroup({id})");
+
+            try
+            {
+                return Json(TaskManager.GetAllTasksByGroup(groupId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogLevel.Error, $"TaskController.GetTaskForGroup({id}) - {ex}");
+                //изменить http status code
+                return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public object GetFavorite()
+        {
+            var id = User.Identity.GetUserId<long>();
+            logger.Log(LogLevel.Debug, $"TaskController.GetTaskForGroup({id})");
+
+            try
+            {
+                return Json(TaskManager.GetAllTasksByGroup(groupId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogLevel.Error, $"TaskController.GetTaskForGroup({id}) - {ex}");
+                //изменить http status code
+                return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
     }
 }

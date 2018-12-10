@@ -312,6 +312,21 @@ namespace ToDoApplication.Controllers
             return Ok();
         }
 
+        [Route("ChangeUsername")]
+        public async Task<object> ChangeUsername(ChangeUsernameBindingModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var user = UserManager2.GetUserModel(User.Identity.GetUserId<long>());
+            user.username = model.username;
+            user = UserManager2.Update(user);
+
+            return user;
+        }
+
         [HttpPost]
         [AllowAnonymous]
         [Route("ResetPassword")]

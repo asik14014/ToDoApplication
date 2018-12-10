@@ -120,4 +120,10 @@ namespace ToDoApplication.Models
         [Required]
         public string email { get; set; }
     }
+
+    public class ChangeUsernameBindingModel
+    {
+        [Required]
+        public string username { get; set; }
+    }
 }
