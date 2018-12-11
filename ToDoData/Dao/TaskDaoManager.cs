@@ -46,7 +46,7 @@ namespace TodoData.Dao
                     using (ITransaction transaction = session.BeginTransaction())
                     {
                         return session.QueryOver<Task>()
-                            .Where(t => t.UserId == groupId)
+                            .Where(t => t.GroupId == groupId)
                             .List();
                     }
                 }

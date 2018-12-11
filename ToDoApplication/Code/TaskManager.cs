@@ -6,6 +6,8 @@ using System.Web.Http;
 using ToDoApplication.Models;
 using ToDoApplication.Models.Request;
 using TodoData.Dao;
+using TodoData.Enum;
+using TodoData.Models.Group;
 using TodoData.Models.Shared;
 using TodoData.Models.Task;
 
@@ -530,6 +532,20 @@ namespace ToDoApplication.Code
                 }).ToList();
             }
             return temp;
+        }
+
+        public static IList<Task> GetFavorite(long userId)
+        {
+            IList<Task> result = null;
+            var buffer = groupDaoManager.GetAllByUserId(userId);
+            var group = buffer.FirstOrDefault(f => f.GroupType == (int)GroupTypeEnum.FAVOURITES);
+
+            if (group != null)
+            {
+                result = taskDaoManager.GetAllByGroupId(group.Id);
+            }
+
+            return result;
         }
     }
 }

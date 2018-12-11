@@ -383,9 +383,7 @@ namespace ToDoApplication.Controllers
             try
             {
                 var result = TaskManager.FindTask(User.Identity.GetUserId<long>(), name);
-
-                if (result != null) return new HttpStatusCodeResult(200);
-                return new HttpStatusCodeResult(400);
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -453,15 +451,15 @@ namespace ToDoApplication.Controllers
         public object GetFavorite()
         {
             var id = User.Identity.GetUserId<long>();
-            logger.Log(LogLevel.Debug, $"TaskController.GetTaskForGroup({id})");
+            logger.Log(LogLevel.Debug, $"TaskController.GetFavorite({id})");
 
             try
             {
-                return Json(TaskManager.GetAllTasksByGroup(groupId), JsonRequestBehavior.AllowGet);
+                return Json(TaskManager.GetFavorite(id), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
-                logger.Log(LogLevel.Error, $"TaskController.GetTaskForGroup({id}) - {ex}");
+                logger.Log(LogLevel.Error, $"TaskController.GetFavorite({id}) - {ex}");
                 //изменить http status code
                 return Json(new Response(100, ex.Message), JsonRequestBehavior.AllowGet);
             }

@@ -203,6 +203,12 @@ namespace ToDoApplication.Controllers
             var info = UserManager2.FindUserInfo(user.UserInfoId);
             info.PhotoUrl = uploadResult.Result;
             UserManager2.UpdateInfo(info);
+            try
+            {
+                GroupManager.CreateFavorites(user.Id);
+            }
+            catch (Exception ex)
+            { }
 
             var usermodel = UserManager2.GetUserModel(user.UserName);
 
